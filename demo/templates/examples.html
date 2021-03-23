@@ -1,0 +1,119 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-6">
+            <div class="container-fluid">
+                <h1>Examples View</h1>
+                <div class="row">
+                {% for js in examples %}
+                    <div class="card mb-2 mr-2 p-3" style="width:12rem;height:19em;">
+                      <div class="card-body">
+                          <h5 class="card-title">{{js._id}}</h5>
+                          <p class="card-text">Name: {{js.name}}</p>
+                          <p class="card-text">{{js.location}}</p>
+                      </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <h1>API Samples:</h1>
+            <div class="container-fluid mb-2 mr-2 p-3 bg-light">
+                <button id="get-examples">GET /api/v1/keys</button>
+                <div><h5 class="text-light-50">Response Time:</h5><span id="get-examples-response-time"></span> MS</div>
+
+                <div id="get-examples-response-container w-100" class="overflow-auto" style="height:12em;">
+                    <h5 class="text-light-50">Response Body:</h5>
+                    <pre id="get-examples-response-body" style="width:100%;white-space: pre-wrap;"></pre>
+                </div>
+            </div>
+            <div class="container-fluid mb-2 mr-2 p-3 bg-light">
+                <button id="get-example">GET /api/v1/examples/ by ID</button><input id="get-example-id" value="" />
+                <div><h5 class="text-light-50">Response Time:</h5><span id="get-example-response-time"></span> MS</div>
+
+                <div id="get-example-response-container" class="overflow-auto" style="width:100%;height:12em;">
+                    <h5 class="text-light-50">Response Body:</h5>
+                    <pre id="get-example-response-body" style="width:100%;white-space: pre-wrap;"></pre>
+                </div>
+            </div>
+            <div class="container-fluid mb-2 mr-2 p-3 bg-light">
+                <button id="get-example-names">GET /api/v1/examples/key/field/</button>
+                <input id="get-example-name" value="example" />
+                <input id="get-example-field" value="example" />
+                <div><h5 class="text-light-50">Response Time:</h5><span id="get-example-names-response-time"></span> MS</div>
+
+                <div id="get-example-names-response-container" class="overflow-auto" style="width:100%;height:12em;">
+                    <h5 class="text-light-50">Response Body:</h5>
+                    <pre id="get-example-names-response-body" style="width:100%;white-space: pre-wrap;"></pre>
+                </div>
+            </div>
+            <div class="container-fluid mb-2 mr-2 p-3 bg-light">
+                <button id="post-example" class="mb-1">POST /api/v1/examples/</button>
+                <div class="input-group mb-3">
+                    <label for="post-example-name" class="col-sm-2 col-form-label text-success">Name:</label>
+                    <input id="post-example-name" class="col-8" value="A new example!" />
+                    <div class="col-sm-3">
+                        <small for="post-example-name" id="post-example-name-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid name.</small>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <label for="post-example-age" class="col-sm-2 col-form-label text-success">Age:</label>
+                    <input id="post-example-age" class="col-8" value="21" />
+                    <div class="col-sm-3">
+                        <small for="post-example-age" id="post-example-definition-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid age.</small>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <label for="post-example-description" class="col-sm-2 col-form-label text-success">Description:</label>
+                    <input id="post-example-description" class="col-8" value="A really great example of something very interesting." />
+                    <div class="col-sm-3">
+                        <small for="post-example-description" id="post-example-definition-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid description.</small>
+                    </div>
+                </div>
+                <div><h5 class="text-light-50">Response Time:</h5><span id="post-example-response-time"></span> MS</div>
+
+                <div id="post-example-response-container" class="overflow-auto" style="width:100%;height:12em;">
+                    <h5 class="text-light-50">Response Body:</h5>
+                    <pre id="post-example-response-body" style="width:100%;white-space: pre-wrap;"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="example-detail-modal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="example-details-modal-title" class="modal-title">Example Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive-sm">
+          <table id="example-detail-table" class="table">
+
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block endscripts %}
+
+<script src="/static/js/examples.js"></script>
+
+{% endblock %}

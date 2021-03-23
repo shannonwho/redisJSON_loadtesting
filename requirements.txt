@@ -1,0 +1,8 @@
+Flask
+flask_bootstrap
+markdown
+flask_restful
+redis
+rejson
+faker
+requests

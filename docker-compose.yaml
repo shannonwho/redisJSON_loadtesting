@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+  redis:
+    image: redislabs/rejson:latest
+    restart: unless-stopped
+    command: redis-server --loadmodule "/usr/lib/redis/modules/rejson.so" --requirepass "$REDIS_PASSWORD"
+    ports:
+        - 6379:6379
+  app:
+    build:
+      context: .
+      target: base
+    ports:
+      - 5000:5000
+    environment:
+     - ENV=local
+    volumes: 
+     - .:/app
+    depends_on:
+      - redis
+    env_file: 
+      - local_conf/app.conf
+
+  locust_master:
+    build:
+      context: .
+      target: test
+    ports:
+     - "8089:8089"
+    environment:
+     - ENV=local
+    volumes:
+      - .:/test
+    entrypoint: locust --web-host=0.0.0.0 --host=http://app:5000 --master --tags addSimpleJSON
+    env_file: 
+      - local_conf/locust.conf
+    depends_on:
+      - app
+  
+  locust_worker:
+    build:
+      context: .
+      target: test
+    environment:
+    - ENV=local
+    volumes:
+      - .:/test
+    entrypoint: locust --worker --master-host locust_master
+    env_file: 
+      - local_conf/locust.conf
+    depends_on:
+      - app

@@ -1,0 +1,84 @@
+{% extends "main.html" %}
+{% block header %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/style/home.css">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fuid">
+    <div class="row">
+        <div class="col-4">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="v-pills-overview-tab" data-toggle="pill" href="#v-pills-overview" role="tab" aria-controls="v-pills-overview" aria-selected="true">Overview</a>
+                <a class="nav-link" id="v-pills-solution-tab" data-toggle="pill" href="#v-pills-solution" role="tab" aria-controls="v-pills-solution" aria-selected="false">Problem/Solution</a>
+                <a class="nav-link" id="v-pills-example-tab" data-toggle="pill" href="#v-pills-topic2" role="tab" aria-controls="v-pills-example" aria-selected="false">Example</a>
+                <a class="nav-link" id="v-pills-run-tab" data-toggle="pill" href="#v-pills-run" role="tab" aria-controls="v-pills-run" aria-selected="false">Run</a>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-overview" role="tabpanel" aria-labelledby="v-pills-overview-tab">
+                    <h2>Overview</h2>
+                    <p class="p-3">
+                        This is where we can give a short intro to what the demo is going to demonstrate.
+                    </p>
+                    <h3>Important Point</h3>
+                    <p class="p-3">
+                    An introduction to a concept or key ide could be put here.. much like a presentation. Insert an image, it's nice.
+                    </p>
+                </div>
+                <div class="tab-pane fade"  id="v-pills-solution" role="tabpanel" aria-labelledby="v-pills-solution-tab">
+                    <h2>Pain Point or Contextual Data</h2>
+                    <p class="p-3">
+                        Build the case. Provide industry or technical pains or contextual data. Insert diagrams, charts, whatever.
+                    </p>
+                    <h2>Solution / Feature</h2>
+                    <p class="p-3">
+                        High level of the solution. UML? Redis data structure? Streams? Search?
+                    </p>
+                </div>
+                <div class="tab-pane fade"  id="v-pills-example" role="tabpanel" aria-labelledby="v-pills-example-tab">
+                    <h2>Example ... UI?</h2>
+                    <p class="p-3">
+                        Provide a small sample of the app / problem space being demonstrated.
+                    </p>
+
+                    <h2>Example ... APIs? Redis ...?</h2>
+                    <p class="p-3">
+                        The demo app might contain some APIs... might have an endpoint <code>GET: /api/v1/stash</code> which
+                        does something cool.
+                    </p>
+                    <div class="container-fluid mb-2 mr-2 p-3 bg-light">
+                        <button id="get-example">GET /api/v1/examples/</button><input id="get-example-id" value="5" readonly/>
+                        <div><h5 class="text-light-50">Response Time:</h5><span id="get-example-response-time"></span> MS</div>
+
+                        <div id="get-stash-response-container" class="overflow-auto" style="width:100%;height:12em;">
+                            <h5 class="text-light-50">Response Body:</h5>
+                            <pre id="get-example-response-body" style="width:100%;white-space: pre-wrap;"></pre>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="tab-pane fade" id="v-pills-run" role="tabpanel" aria-labelledby="v-pills-run-tab">
+                    <h2>Run the Demo</h2>
+                    <p class="p-3">
+                        The admin panel. The buttons, dials, visuals needed to run the demo.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block endscripts %}
+<script>
+    const environment = '{{environment}}';
+</script>
+<script src="/static/js/home.js"></script>
+<script scr="/static/js/examples.js"></script>
+{% endblock %}

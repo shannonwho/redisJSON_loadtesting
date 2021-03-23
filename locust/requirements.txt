@@ -1,0 +1,4 @@
+rejson
+faker
+requests
+simplejson
