@@ -4,23 +4,6 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-6">
-            <div class="container-fluid">
-                <h1>Examples View</h1>
-                <div class="row">
-                {% for js in examples %}
-                    <div class="card mb-2 mr-2 p-3" style="width:12rem;height:19em;">
-                      <div class="card-body">
-                          <h5 class="card-title">{{js._id}}</h5>
-                          <p class="card-text">Name: {{js.name}}</p>
-                          <p class="card-text">{{js.location}}</p>
-                      </div>
-                    </div>
-                {% endfor %}
-                </div>
-            </div>
-        </div>
-        <div class="col-6">
-            <h1>API Samples:</h1>
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
                 <button id="get-examples">GET /api/v1/keys</button>
                 <div><h5 class="text-light-50">Response Time:</h5><span id="get-examples-response-time"></span> MS</div>
@@ -41,8 +24,8 @@
             </div>
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
                 <button id="get-example-names">GET /api/v1/examples/key/field/</button>
-                <input id="get-example-name" value="example" />
-                <input id="get-example-field" value="example" />
+                <input id="get-example-name" value="simple:/ nested:" />
+                <input id="get-example-field" value="name, location, address..." />
                 <div><h5 class="text-light-50">Response Time:</h5><span id="get-example-names-response-time"></span> MS</div>
 
                 <div id="get-example-names-response-container" class="overflow-auto" style="width:100%;height:12em;">
@@ -50,34 +33,57 @@
                     <pre id="get-example-names-response-body" style="width:100%;white-space: pre-wrap;"></pre>
                 </div>
             </div>
+        </div>
+
+        <div class="col-6">
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
-                <button id="post-example" class="mb-1">POST /api/v1/examples/</button>
-                <div class="input-group mb-3">
-                    <label for="post-example-name" class="col-sm-2 col-form-label text-success">Name:</label>
-                    <input id="post-example-name" class="col-8" value="A new example!" />
-                    <div class="col-sm-3">
-                        <small for="post-example-name" id="post-example-name-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid name.</small>
+                <button id="post-example">POST /api/v1/examples </button>
+                    <!-- <div class="input-group mb-3">
+                        <label for="put-product-name" class="col-sm-2 col-form-label text-success">Name:</label>
+                        <div class="col-sm-7">
+                            <input class="w-100" id="put-product-name" value="This is a new name" />
+                        </div>
+                        <div class="col-sm-3">
+                            <small for="put-product-name" id="put-product-name-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid name.</small>
+                        </div>
+                    </div> -->
+                    <div class="input-group mb-3">
+                        <label for="post-example-id" class="col-sm-2 col-form-label text-success">Id</label>
+                        <div class="col-sm-7">
+                            <input id="post-example-id" placeholder="any id will do..." />
+                        </div>
+                        <div class="col-sm-3">
+                            <small for="post-example-id" id="post-example-id-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid ID.</small>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group mb-3">
-                    <label for="post-example-age" class="col-sm-2 col-form-label text-success">Age:</label>
-                    <input id="post-example-age" class="col-8" value="21" />
-                    <div class="col-sm-3">
-                        <small for="post-example-age" id="post-example-definition-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid age.</small>
+                    <div class="input-group mb-3">
+                        <label for="post-example-name" class="col-sm-2 col-form-label text-success">Name</label>
+                        <div class="col-sm-7">
+                            <input id="post-example-name" placeholder="any name will do..." />
+                        </div>
+                        <div class="col-sm-3">
+                            <small for="post-example-name" id="post-example-name-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid name.</small>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group mb-3">
-                    <label for="post-example-description" class="col-sm-2 col-form-label text-success">Description:</label>
-                    <input id="post-example-description" class="col-8" value="A really great example of something very interesting." />
-                    <div class="col-sm-3">
-                        <small for="post-example-description" id="post-example-definition-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid description.</small>
-                    </div>
+                    <!-- <div class="input-group mb-3">
+                        <label for="post-example-location" class="col-sm-2 col-form-label text-success">Location</label>
+                        <div class="col-sm-7">
+                            <input class="w-100" id="post-example-location" placeholder="Moutain View, CA" class="form-control is-valid" />
+                        </div>
+                        <div class="col-sm-3">
+                            <small for="post-example-location" id="post-example-location-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid location.</small>
+                        </div>
+                    </div> -->
+                <div> RedisJSON:
+                    <code id="put-product-sql-code"></code>
                 </div>
                 <div><h5 class="text-light-50">Response Time:</h5><span id="post-example-response-time"></span> MS</div>
 
-                <div id="post-example-response-container" class="overflow-auto" style="width:100%;height:12em;">
+                <div id="post-example-response-body" class="overflow-auto" style="width:100%;height:12em;">
                     <h5 class="text-light-50">Response Body:</h5>
                     <pre id="post-example-response-body" style="width:100%;white-space: pre-wrap;"></pre>
+                    <!-- <pre id="get-example-names-response-body" style="width:100%;white-space: pre-wrap;"></pre> -->
+
                 </div>
             </div>
         </div>

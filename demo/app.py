@@ -77,8 +77,8 @@ def viewExamples():
 """
 API using RedisJSON
 """
-# get a list of keys that's store with RedisJSON 
-@app.route('/api/v1/examples', methods=['GET'])
+# get a list of keys that's store with RedisJSON with the key pattern
+@app.route('/api/v1/keys', methods=['GET'])
 def api_get_keys():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
@@ -86,10 +86,11 @@ def api_get_keys():
         limit = 10 if request.args.get('limit') == 0 else request.args.get('limit')
     else:
         limit = 10
-    offset = request.args.get('offset') if request.args.get('offset') else 0
+    # offset = request.args.get('offset') if request.args.get('offset') else 0
+    pattern = request.args.get('pattern') if request.args.get('pattern') else 'simple'
 
     #show all the json item 
-    keys = services.scan_keys("Topshot*",cnt=limit)
+    keys = services.scan_keys(pattern,cnt=limit)
     full_json = []
     for k in keys:
         full_json.append(services.getJsonByKey(k))
@@ -109,13 +110,15 @@ def api_get_keys():
 
 
 # get a list of keys that's store with RedisJSON 
-# TBD add option to choose the path
 @app.route('/api/v1/fields/<id>', methods=['GET'])
 def api_get_fields(id):
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    path = request.args.get('path') if request.args.get('path') else '.'
+
+    
     #show all the fields of a key with the path
-    fields = services.scan_fields(id,'.')
+    fields = services.scan_fields(id,path)
 
     try:
         if 'error' not in fields:
@@ -137,6 +140,7 @@ def api_get_example(id):
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     #Get JSON document by ID
     json_doc = services.getJsonByKey(id)
+
     try:
         if 'error' not in json_doc:
             return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
@@ -148,8 +152,6 @@ def api_get_example(id):
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
-
-
 
 
 #get a subdocument of a JSON document
@@ -172,9 +174,32 @@ def api_get_subdoc(id,field):
                         status=400)
 
 
-
-
 #get a list of attributes on a JSON by a list of keys (mget)
+
+# @app.route('/api/v1/append', methods=['POST'])
+# def manipute_json_field():
+#     app.logger.info(
+#         'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    
+#     data = request.get_json(force=True)
+#     app.logger.debug('APPEND request body: {}'.format(data))
+
+    # keyname =  request.args.get('keyname') if request.args.get('keyname') else 'simple'
+
+    # json_doc = services.appendStringToField(**data)
+
+    # try:
+    #     if 'error' not in json_doc:
+    #         return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
+    #                         mimetype='application/json', status=200)
+    #     else:
+    #         return Response(json.dumps({'error': json_doc}, indent=4, default=str), mimetype='application/json',
+    #                         status=400)
+    # except Exception:
+    #     app.logger.warn('request failed:', exc_info=True)
+    #     return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+    #                     status=400)
+
 
 
 #Incrememt an numeric field in JSON 
@@ -185,6 +210,8 @@ def api_get_subdoc(id,field):
         self.assertEqual(1.25, rj.jsonnumincrby('num', Path.rootPath(), -1.25))
 """
 
+
+
 #Use RedisJSON for adding example 
 @app.route('/api/v1/examples', methods=['POST'])
 def api_add_example():
@@ -192,7 +219,9 @@ def api_add_example():
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     data = request.get_json(force=True)
     app.logger.debug('request body: {}'.format(data))
-    # add_example = services.add_example(**data)
+
+    # keyname =  request.args.get('keyname') if request.args.get('keyname') else 'simple'
+
     add_json = services.add_json(**data)
     try:
         if 'error' not in add_json:

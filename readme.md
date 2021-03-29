@@ -14,32 +14,31 @@ cloud deployment: gcp credentials file and environment settings
 
 
 
-
-# The application:
+# The REST API application:
 
 The REST API is based on RedisJSON module for basic JSON Operations:
 - GET
-  - by key 
-  - by key and fields
-  - by key and get subdocuments
+  - Get object by key 
+  - Get the value of a field by key and field's name
+  - Get the sub-document(nested object) by key and field's name
 - POST
-  - Simple JSON with no subdocument
+  - Simple JSON with no subdocument(nested obejct)
   - Nested JSON with array and subdocument
 - PUT
   - Append new object/value into an existing JSON object
   - Increase/Multiplying a numeric item in the JSON
 
 
-
 # The locust Test: 
 
 ## Main test cases:
 
+- READ entire JSON objects by key
+- READ specific field within a JSON object by key
+- READ the list of field name under a field/object by the key
 - WRITE simple JSON without array and subdocument 
 - WRITE complex JSON with array and subdocument 
-- READ any JSON objects
-- READ specific field within a JSON object 
-- SET parts of JSON objects 
+- UPDATE a part of JSON objects (multiply/increase)
 - APPEND new items into an array of the JSON objects 
 - ... 
 
@@ -65,8 +64,20 @@ Note: if you want to generate your own load pattern that's outside of simply adj
 
 More details about stats are also avaialble on '/stats/requests'
 
+3. You have the options to calculate the number of percentile 
 
-## Other components within the tests: 
+get_current_response_time_percentile 
+## Other components within the Locust tests: 
 - Use faker to generate a user info in json:https://faker.readthedocs.io/en/master/ 
+- Generate different propotion on each test by assigning the weight, eg. @task ( level of the priority)
 - For load testing you might want to make one of the requests execute more often than the others, Locust allows you to do it by defining the weight for each task. 
 - Grafana dashboard for more detailed visualization on all statistics 
+
+
+
+
+# To be done and understand : 
+- ** How to only run one test at a time? **
+- Try run on Redis Cloud subscription: Try Terraform, and go direct connection; 
+- Eliminate as much development overhead as possible
+- Try to put the stats on APM (Grafana) for more detailed monitoring

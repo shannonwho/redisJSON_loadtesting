@@ -7,30 +7,21 @@ import app
 import uuid
 from utils import redis_client as rc
 from itertools import zip_longest #scan keys in batches
+import uuid
 
 
 examples_reference = {
     'index': 'examples_idx',
     'index_name_delimiter': ':',
-    'fields': '_id,name,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,business'
+    'fields': 'id,_id,name,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,business'
 }
 
-# obj = {
-#     '_id': 42,
-#     'name': 'Shannon',
-#     'zipcode': 123456,
-#     'address': ['home address', 'business address'],
-#     'location':{
-#         'latitude':33.685909,
-#         'longitude':-117.824722
-#     }
-# }
 
 def scan_keys(pattern,cnt):
     "Returns a list of all the keys matching a given pattern"
     result = []
     try:
-        cur, keys  = rc.connection.scan(cursor=0, match=pattern+'*',count=10)
+        cur, keys  = rc.connection.scan(cursor=0, match=pattern+'*',count=cnt)
         result.extend(keys)
         # Get all keys Use below code
         # while cur != 0:
@@ -41,10 +32,10 @@ def scan_keys(pattern,cnt):
         return {'error':str(e)}
 
 
-def scan_fields(key, path):
-    "Return the keys in the object that's referenced by path"
+def scan_fields(key, p):
+    '''Returns the key names in the dictionary JSON value under path at key name'''
     try:
-        return rc.connection.jsonobjkeys(key,rc.Path.rootPath())
+        return rc.connection.jsonobjkeys(key, path=p)
     except Exception as e:
         return {'error':str(e)}
 
@@ -54,11 +45,12 @@ def add_json(**kwargs):
     allowed_fields = examples_reference['fields'].split(',')
     #create a python obj(dict) first
     new_obj = {}
-    id = "Topshot:" + str(uuid.uuid4())
+    id_template = 'simple:' + str(uuid.uuid4())
     for key,value in kwargs.items():
         if key in allowed_fields:
             new_obj[key] = value
-    new_obj['_id'] = id
+
+    id = new_obj['id'] if new_obj['id'] else id_template
 
     try:
         rc.connection.jsonset(id, rc.Path.rootPath(), new_obj)
@@ -73,14 +65,6 @@ def getJsonByKey(key):
         return rc.connection.jsonget(key)
     except Exception as e:
         return {'error': str(e)}
-
-
-#Add an array of JSON
-def addArrayOfJSON(len,**kwargs):
-    try:
-        rc.connection.jsonarrappend()
-    except Exception as e:
-        return {'error':str(e)}
 
 
 def getArrayOfJsonSubByKey(key, field):
@@ -99,32 +83,24 @@ def getSubdoc(id, field):
         return {'error': str(e)}
 
 
-def get_examples(limit=10,offset=0):
+#Append array of values 
+def appendStringToField(**kwargs):
     try:
-        just_ids = []
-        name_and_ids = rc.connection.zrange(examples_reference['index'], offset, limit)
-        for i in range(len(name_and_ids)):
-            just_ids.append(name_and_ids[i].split(':', 1)[1])
-        return just_ids
+        #restrict to the selected fields 
+        #create a python obj(dict) first
+        obj = {}
+        for key,value in kwargs.items():
+            obj[key] = value
+        #id, field, value
+        rc.connection.jsonstrappend(obj['id'], obj['value'], path='.'+obj['field'])
+        return rc.connection.jsonget(obj['id'])
     except Exception as e:
-        app.logger.error(e)
         return {'error': str(e)}
 
-# def get_examples_by_name(name, limit=10,offset=0):
-#     lex_min = '{}{}'.format('[', name)
-#     lex_max = '{}{}'.format(lex_min, str(b'\xff', 'iso-8859-1'))
-#     try:
-#         name_id_pairs = []
-#         name_and_ids = redis_client.connection.zrangebylex(examples_reference['index'], lex_min, lex_max, offset, limit)
-#         for i in range(len(name_and_ids)):
-#             match = name_and_ids[i].split(':', 1)
-#             name_id_pairs.append({'name': match[0], 'id': match[1]})
-#         return name_id_pairs
-#     except Exception as e:
-#         app.logger.error(e)
-#         return {'error': str(e)}
 
-
-
-
-
+#Add an array of JSON
+def addArrayOfJSON(len,**kwargs):
+    try:
+        rc.connection.jsonarrappend()
+    except Exception as e:
+        return {'error':str(e)}

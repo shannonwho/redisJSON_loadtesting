@@ -1,4 +1,6 @@
 from locust import HttpUser, User, TaskSet, task, web, runners, between, tag
+# from locust.runners import MasterLocustRunner
+from locust.stats import sort_stats
 # import json
 import simplejson as json
 import os
@@ -14,6 +16,7 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import date
 import enum
+import uuid
 
 
 #In order for json.dump works with nested array
@@ -39,16 +42,18 @@ fake.add_provider(company)
 
 """Functions for tasks to be used in the Tasl set"""
 
-def get_id():
+def get_id(pattern):
     #use scan on the key level 
     try:
-        resp = requests.get(api_endpoint + 'examples', verify=False)
+        resp = requests.get(api_endpoint + 'keys?pattern=' + pattern, verify=False)
         r = resp.json()
         keys = r.get('examples')
         return keys
     except Exception as e:
         return {'error':str(e)}
 
+fields = ['id','name','address','location']
+#,'location','latitude','longitude' 
 
 """ Build the TaskSet """
 class test(TaskSet):
@@ -63,14 +68,16 @@ class test(TaskSet):
     @task (2)
     def add_simple_json(self):
         simple_json = {
+            'id':   "simple:" + str(uuid.uuid4()),
             'name': fake.company(),
-            'geo': fake.coordinate(),
-            'number': fake.random_int(),
-            'description': fake.bs()
+            'number': str(fake.random_int(min=0, max=15)),
+            'location': str(fake.latitude()),
+            'address': fake.street_address()
         }
+        simple_json_d = json.dumps(simple_json)
 
         self.client.post('/api/v1/examples',
-            json=simple_json,
+            data=json.dumps(simple_json,use_decimal=True),
             headers={'Content-Type': 'application/json'},
             timeout=20,
             name='/api/v1/simple_json')
@@ -82,13 +89,15 @@ class test(TaskSet):
     @task(1)
     def add_nested_json(self):
         nested_json = {
+            'id': "nested:" + str(uuid.uuid4()),
             'name': fake.company(),
-            'description': fake.bs(),
+            'number': str(fake.random_int(min=0, max=15)),
             'location':{
                 'latitude': fake.latitude(),
-                'longitude':fake.longitude()
+                'longitude':fake.longitude(),
+                'number': fake.random_int(min=0, max=15)
                 },
-            'address': [fake.street_address(), fake.street_address()]
+            'address': [fake.street_address(), fake.street_address(), fake.street_address()]
             }
         self.client.post('/api/v1/examples',
             data=json.dumps(nested_json,use_decimal=True),
@@ -100,16 +109,41 @@ class test(TaskSet):
     @tag('getJSONByKey')
     @task(3)
     def get_json_by_key(self):
-        id = get_id()
+        id = get_id('simple')
         self.client.get('/api/v1/examples/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getJsonByKey')
         self.client.cookies.clear()
 
-    @tag('getJSONByKeyAndField')
+    @tag('getValueByKeyAndField')
     @task(3)
     def get_json_by_key_and_field(self):
-        id= get_id()
-        self.client.get('/api/v1/examples/{}/description'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getJsonByKeyAndFields')
+        id= get_id('simple')
+        self.client.get('/api/v1/examples/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=20, name='/api/v1/examples/getValueByKeyAndFields')
         self.client.cookies.clear()
+
+    @tag('getListOfFieldsByKey')
+    @task(1)
+    def get_list_of_fields_by_key(self):
+        id = get_id('nested')
+        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getListOfFieldsByKey')
+        self.client.cookies.clear()
+
+
+    # @tag('addNewStringToJSONField')
+    # @task(1)
+    # def add_new_string_to_a_field(self):
+    #     id = get_id('simple')
+    #     append = {
+    #         'id': id,
+    #         'field': random.choice(fields),
+    #         'value': fake.company()
+    #     }
+
+    #     self.client.post('/api/v1/append',
+    #         data=json.dumps(append),
+    #         headers={'Content-Type': 'application/json'},
+    #         timeout=20,
+    #         name='/api/v1/addNewStringToJSONField')
+    #     self.client.cookies.clear()
 
 
 """ Generate the load """
