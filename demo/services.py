@@ -13,7 +13,7 @@ import uuid
 examples_reference = {
     'index': 'examples_idx',
     'index_name_delimiter': ':',
-    'fields': 'id,_id,name,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,business'
+    'fields': 'id,_id,number, name,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,business'
 }
 
 
@@ -84,7 +84,7 @@ def getSubdoc(id, field):
 
 
 #Append array of values 
-def appendStringToField(**kwargs):
+def appendStringToField(key, field, **kwargs):
     try:
         #restrict to the selected fields 
         #create a python obj(dict) first
@@ -92,7 +92,7 @@ def appendStringToField(**kwargs):
         for key,value in kwargs.items():
             obj[key] = value
         #id, field, value
-        rc.connection.jsonstrappend(obj['id'], obj['value'], path='.'+obj['field'])
+        rc.connection.jsonstrappend(name=key, path='.'+ field, arg=obj)
         return rc.connection.jsonget(obj['id'])
     except Exception as e:
         return {'error': str(e)}
@@ -104,3 +104,21 @@ def addArrayOfJSON(len,**kwargs):
         rc.connection.jsonarrappend()
     except Exception as e:
         return {'error':str(e)}
+
+
+#Increase the numeric JSON value under path at key with the provided number
+def numIncrBy(key, field, incrby):
+    try:
+        rc.connection.jsonnumincrby(key, path='.'+field, number=incrby)
+        return rc.connection.jsonget(key)
+    except Exception as e:
+        return {'error-numIncrBy': str(e)}
+
+
+#Multiplies the numeric JSON value udner path at key with the provided number 
+def numMultiBy(key, field, multiby):
+    try:
+        rc.connection.jsonnummultby(key, path='.'+field, number=multiby)
+        return rc.connection.jsonget(key)
+    except Exception as e:
+        return {'error-multiBy':str(e)}

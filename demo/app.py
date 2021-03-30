@@ -82,10 +82,7 @@ API using RedisJSON
 def api_get_keys():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    if request.args.get('limit'):
-        limit = 10 if request.args.get('limit') == 0 else request.args.get('limit')
-    else:
-        limit = 10
+    limit = request.args.get('limit') if request.args.get('limit') else 10
     # offset = request.args.get('offset') if request.args.get('offset') else 0
     pattern = request.args.get('pattern') if request.args.get('pattern') else 'simple'
 
@@ -115,11 +112,8 @@ def api_get_fields(id):
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     path = request.args.get('path') if request.args.get('path') else '.'
-
-    
     #show all the fields of a key with the path
     fields = services.scan_fields(id,path)
-
     try:
         if 'error' not in fields:
             return Response(json.dumps({'status': 'ok', 'examples': fields}, indent=4, default=str),
@@ -212,23 +206,83 @@ def api_get_subdoc(id,field):
 
 
 
-#Use RedisJSON for adding example 
+#Use RedisJSON for adding a new JSON 
 @app.route('/api/v1/examples', methods=['POST'])
 def api_add_example():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     data = request.get_json(force=True)
-    app.logger.debug('request body: {}'.format(data))
-
-    # keyname =  request.args.get('keyname') if request.args.get('keyname') else 'simple'
-
     add_json = services.add_json(**data)
+
     try:
         if 'error' not in add_json:
             return Response(json.dumps({'status': 'ok', 'json': add_json}, indent=4, default=str),
                             mimetype='application/json', status=200)
         else:
             return Response(json.dumps({'error': "add_json"}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+
+#Append a value to a field
+
+
+
+#Increase a numeric field in a JSON
+@app.route('/api/v1/examples/increby', methods=['PUT'])
+def api_num_incrby():
+    app.logger.info(
+        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    data = request.get_json(force=True)
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+        num = data.get('num', None)
+        #call numIncrBy function
+        incrData = services.numIncrBy(key, field, num)
+        app.logger.info("PUT! {} and {}".format(field, num))
+    else:
+        result = {'error': 'invalid request'}
+    
+    try:
+        if 'error' not in incrData:
+            return Response(json.dumps({'status': 'ok', 'json': incrData}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': "incrData"}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+
+
+#Increase a numeric field in a JSON
+@app.route('/api/v1/examples/multiby', methods=['PUT'])
+def api_num_multiby():
+    app.logger.info(
+        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    data = request.get_json(force=True)
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+        num = data.get('num', None)
+        #call numIncrBy function
+        multiData = services.numMultiBy(key, field, num)
+
+    else:
+        result = {'error': 'invalid request'}
+    
+    try:
+        if 'error' not in multiData:
+            return Response(json.dumps({'status': 'ok', 'json': multiData}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': "multiData"}, indent=4, default=str), mimetype='application/json',
                             status=400)
     except Exception:
         app.logger.warn('request failed:', exc_info=True)
