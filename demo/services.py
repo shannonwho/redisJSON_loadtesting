@@ -13,7 +13,7 @@ import uuid
 examples_reference = {
     'index': 'examples_idx',
     'index_name_delimiter': ':',
-    'fields': 'id,_id,number, name,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,business'
+    'fields': 'id,_id,number,name,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,activeStatus'
 }
 
 
@@ -83,17 +83,14 @@ def getSubdoc(id, field):
         return {'error': str(e)}
 
 
-#Append array of values 
-def appendStringToField(key, field, **kwargs):
+#Append the json-string value(s) the string at path .
+def appendStringToField(key, field, str):
     try:
         #restrict to the selected fields 
-        #create a python obj(dict) first
-        obj = {}
-        for key,value in kwargs.items():
-            obj[key] = value
         #id, field, value
-        rc.connection.jsonstrappend(name=key, path='.'+ field, arg=obj)
-        return rc.connection.jsonget(obj['id'])
+        print('appendStringToField: key {}, field {}, str {} '.format(key,field,str))
+        rc.connection.jsonstrappend(name=key, path='.'+ field, string=str)
+        return rc.connection.jsonget(key)
     except Exception as e:
         return {'error': str(e)}
 
@@ -115,10 +112,31 @@ def numIncrBy(key, field, incrby):
         return {'error-numIncrBy': str(e)}
 
 
-#Multiplies the numeric JSON value udner path at key with the provided number 
+# Multiplies the numeric JSON value udner path at key with the provided number 
 def numMultiBy(key, field, multiby):
     try:
         rc.connection.jsonnummultby(key, path='.'+field, number=multiby)
         return rc.connection.jsonget(key)
     except Exception as e:
         return {'error-multiBy':str(e)}
+
+
+# Add JSON through HASH:
+def addjson_hash(**kwargs):
+    #restrict to the selected fields 
+    allowed_fields = examples_reference['fields'].split(',')
+    #create a python obj(dict) first
+    new_obj = {}
+    id_template = 'simpleHash:' + str(uuid.uuid4())
+
+    for key,value in kwargs.items():
+        if key in allowed_fields:
+            new_obj[key] = value
+    id = new_obj['id'] if new_obj['id'] else id_template
+    try:
+        rc.connection.hmset(id,kwargs)
+        return rc.connection.hgetall(id)
+    except Exception as e:
+        return {'error-multiBy': str(e)}
+
+    

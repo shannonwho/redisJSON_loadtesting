@@ -58,14 +58,8 @@ fields = ['id','name','address','location']
 """ Build the TaskSet """
 class test(TaskSet):
     """ task functions to be used in the TaskSet """
-    # @task
-    # def on_start(self):
-    #     self.client.get("/examples", verify=True)    
- 
-    # POST simple JSON 
- 
     @tag('addSimpleJSON')
-    @task (1)
+    @task(3)
     def add_simple_json(self):
         simple_json = {
             'id':   "simple:" + str(uuid.uuid4()),
@@ -76,7 +70,7 @@ class test(TaskSet):
         }
         simple_json_d = json.dumps(simple_json)
 
-        self.client.post('/api/v1/examples',
+        self.client.post('/api/v1/examples/redisjson',
             data=simple_json_d,
             headers={'Content-Type': 'application/json'},
             timeout=20,
@@ -84,66 +78,91 @@ class test(TaskSet):
         self.client.cookies.clear()
 
     #POST nested JSON
+    @tag('addNestedJSON')
+    @task(3)
+    def add_nested_json(self):
+        nested_json = {
+            'id': "advancedUser:" + str(uuid.uuid4()),
+            'name': fake.company(),
+            'activeStatus': False,
+            'number': str(fake.random_int(min=0, max=15)),
+            'location':{
+                'latitude': fake.latitude(),
+                'longitude':fake.longitude(),
+                'number': fake.random_int(min=0, max=15)
+                },
+            'address': [fake.street_address(), fake.street_address(), fake.street_address()]
+            }
+        self.client.post('/api/v1/examples/redisjson',
+            data=json.dumps(nested_json,use_decimal=True),
+            headers={'Content-Type': 'application/json'},
+            timeout=20,
+            name='/api/v1/nested_json')
+        self.client.cookies.clear()
 
-    # @tag('addNestedJSON')
-    # @task(1)
-    # def add_nested_json(self):
-    #     nested_json = {
-    #         'id': "nested:" + str(uuid.uuid4()),
-    #         'name': fake.company(),
-    #         'number': str(fake.random_int(min=0, max=15)),
-    #         'location':{
-    #             'latitude': fake.latitude(),
-    #             'longitude':fake.longitude(),
-    #             'number': fake.random_int(min=0, max=15)
-    #             },
-    #         'address': [fake.street_address(), fake.street_address(), fake.street_address()]
-    #         }
-    #     self.client.post('/api/v1/examples',
-    #         data=json.dumps(nested_json,use_decimal=True),
-    #         headers={'Content-Type': 'application/json'},
-    #         timeout=20,
-    #         name='/api/v1/nested_json')
-    #     self.client.cookies.clear()
+    @tag('addSimpleJSONByHash')
+    @task(3)
+    def add_simple_json_by_hash(self):
+        simple_json = {
+            'id':   "simpleHash:" + str(uuid.uuid4()),
+            'name': fake.company(),
+            'number': fake.random_int(min=0, max=15),
+            'location': str(fake.latitude()),
+            'address': fake.street_address()
+        }
+        simple_json_d = json.dumps(simple_json)
 
-    # @tag('getJSONByKey')
-    # @task(3)
-    # def get_json_by_key(self):
-    #     id = get_id('simple')
-    #     self.client.get('/api/v1/examples/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getJsonByKey')
-    #     self.client.cookies.clear()
+        self.client.post('/api/v1/examples/hash',
+            data=simple_json_d,
+            headers={'Content-Type': 'application/json'},
+            timeout=20,
+            name='/api/v1/simple_json_by_hash')
+        self.client.cookies.clear()
 
-    # @tag('getValueByKeyAndField')
-    # @task(3)
-    # def get_json_by_key_and_field(self):
-    #     id= get_id('simple')
-    #     self.client.get('/api/v1/examples/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=20, name='/api/v1/examples/getValueByKeyAndFields')
-    #     self.client.cookies.clear()
+    @tag('getJSONByKey')
+    @task(3)
+    def get_json_by_key(self):
+        id = get_id('simple')
+        self.client.get('/api/v1/examples/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getJsonByKey')
+        self.client.cookies.clear()
 
-    # @tag('getListOfFieldsByKey')
-    # @task(1)
-    # def get_list_of_fields_by_key(self):
-    #     id = get_id('nested')
-    #     self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getListOfFieldsByKey')
-    #     self.client.cookies.clear()
+    @tag('getHashByKey')
+    @task(3)
+    def get_hash_by_key(self):
+        id = get
 
 
-    # @tag('addNewStringToJSONField')
-    # @task(1)
-    # def add_new_string_to_a_field(self):
-    #     id = get_id('simple')
-    #     append = {
-    #         'id': id,
-    #         'field': random.choice(fields),
-    #         'value': fake.company()
-    #     }
+    @tag('getValueByKeyAndField')
+    @task(3)
+    def get_json_by_key_and_field(self):
+        id= get_id('simple')
+        self.client.get('/api/v1/examples/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=20, name='/api/v1/examples/getValueByKeyAndFields')
+        self.client.cookies.clear()
 
-    #     self.client.post('/api/v1/append',
-    #         data=json.dumps(append),
-    #         headers={'Content-Type': 'application/json'},
-    #         timeout=20,
-    #         name='/api/v1/addNewStringToJSONField')
-    #     self.client.cookies.clear()
+    @tag('getListOfFieldsByKey')
+    @task(1)
+    def get_list_of_fields_by_key(self):
+        id = get_id('nested')
+        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getListOfFieldsByKey')
+        self.client.cookies.clear()
+
+
+    @tag('appendString')
+    @task(1)
+    def append_string(self):
+        id = get_id('simple')
+        append = {
+            'key': random.choice(id),
+            'field': 'name',
+            'str': ' Hu'
+        }
+        self.client.put('/api/v1/examples/append',
+            data=json.dumps(append),
+            headers={'Content-Type': 'application/json'},
+            timeout=20,
+            name='/api/v1/appendString')
+        self.client.cookies.clear()
+
 
     @tag('NumIncrby')
     @task(1)

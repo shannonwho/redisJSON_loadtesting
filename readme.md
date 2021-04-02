@@ -10,7 +10,16 @@ cloud deployment: gcp credentials file and environment settings
 
 ```. venv/bin/activate```
 
-```docker-composer up .```
+```docker-compose up .```
+
+# Overall architecture:
+
+- REST API APP
+  - connection pooling
+  - RedisJSON 1 
+- Locust Load testing
+- Visualization 
+
 
 
 

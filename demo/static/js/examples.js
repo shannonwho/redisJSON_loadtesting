@@ -67,7 +67,7 @@ async function postExample() {
         try {
             const response = await axios({
                 method: 'post',
-                url: '/api/v1/examples',
+                url: '/api/v1/examples/redisjson',
                 headers: {'Content-Type': 'application/json' },
                 data: {id:realID, name:name}
             });
@@ -79,32 +79,3 @@ async function postExample() {
         }
     }
 }
-
-
-// async function postExample() {
-//     $('#put-product-sql-code').html('')
-//     $('#put-product-response-time').html('');
-//     $('#put-product-response-body').html('');
-//   const newQuantity = parseInt($('#put-product-quantity').val(), 10)
-//   if(newQuantity !== '' && Number.isInteger(newQuantity) ){
-//       try {
-//         const response = await axios({
-//           method: 'put',
-//           url: '/api/products/' + $('#put-product-code').val() + '?show_sql=1',
-//           headers: {'Content-Type': 'application/json' },
-//           data: {name: $('#put-product-name').val(),quantity: newQuantity}
-//         });
-//         $('#put-product-quantity-error').removeClass('visible');
-//         $('#put-product-quantity-error').addClass('invisible');
-//         $('#put-product-sql-code').html(response.headers['sql-statement'])
-//         $('#put-product-response-time').html(response.duration.toString());
-//         $('#put-product-response-body').html( JSON.stringify( response.data, null, "\t" ) );
-//       } catch (error) {
-//         console.error(error);
-//       }
-//   }
-//   else{
-//      $('#put-product-quantity-error').removeClass('invisible');
-//      $('#put-product-quantity-error').addClass('visible');
-//   }
-// }

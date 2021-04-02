@@ -63,7 +63,7 @@ def viewExamples():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     full_json = []
-    keys = services.scan_keys("Topshot*", cnt=10)
+    keys = services.scan_keys("simpleHash*", cnt=10)
 
     app.logger.debug(keys)
     if 'error' in keys:
@@ -84,7 +84,7 @@ def api_get_keys():
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     limit = request.args.get('limit') if request.args.get('limit') else 10
     # offset = request.args.get('offset') if request.args.get('offset') else 0
-    pattern = request.args.get('pattern') if request.args.get('pattern') else 'simple'
+    pattern = request.args.get('pattern') if request.args.get('pattern') else 'simpleHash'
 
     #show all the json item 
     keys = services.scan_keys(pattern,cnt=limit)
@@ -168,46 +168,8 @@ def api_get_subdoc(id,field):
                         status=400)
 
 
-#get a list of attributes on a JSON by a list of keys (mget)
-
-# @app.route('/api/v1/append', methods=['POST'])
-# def manipute_json_field():
-#     app.logger.info(
-#         'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    
-#     data = request.get_json(force=True)
-#     app.logger.debug('APPEND request body: {}'.format(data))
-
-    # keyname =  request.args.get('keyname') if request.args.get('keyname') else 'simple'
-
-    # json_doc = services.appendStringToField(**data)
-
-    # try:
-    #     if 'error' not in json_doc:
-    #         return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
-    #                         mimetype='application/json', status=200)
-    #     else:
-    #         return Response(json.dumps({'error': json_doc}, indent=4, default=str), mimetype='application/json',
-    #                         status=400)
-    # except Exception:
-    #     app.logger.warn('request failed:', exc_info=True)
-    #     return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
-    #                     status=400)
-
-
-
-#Incrememt an numeric field in JSON 
-"""
- rj.jsonset('num', Path.rootPath(), 1)
-        self.assertEqual(2, rj.jsonnumincrby('num', Path.rootPath(), 1))
-        self.assertEqual(2.5, rj.jsonnumincrby('num', Path.rootPath(), 0.5))
-        self.assertEqual(1.25, rj.jsonnumincrby('num', Path.rootPath(), -1.25))
-"""
-
-
-
 #Use RedisJSON for adding a new JSON 
-@app.route('/api/v1/examples', methods=['POST'])
+@app.route('/api/v1/examples/redisjson', methods=['POST'])
 def api_add_example():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
@@ -227,7 +189,38 @@ def api_add_example():
                         status=400)
 
 
+
+
 #Append a value to a field
+@app.route('/api/v1/examples/append', methods=['PUT'])
+def api_append_field():
+    app.logger.info(
+        'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    
+    data = request.get_json(force=True)
+    app.logger.info('APPEND request body: {}'.format(data))
+
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+        str = data.get('str', None)
+        #call numIncrBy function
+        appenStr = services.appendStringToField(key,field,str)
+    else:
+        result = {'error': 'invalid request'}
+
+    try:
+        if 'error' not in data:
+            return Response(json.dumps({'status':'ok', 'json': data}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': data}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
 
 
 
@@ -288,6 +281,40 @@ def api_num_multiby():
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
+
+
+
+
+"""
+API using Redis's Hash data structure
+"""
+
+#Use Redis's Hash for adding a new JSON 
+@app.route('/api/v1/examples/hash', methods=['POST'])
+def api_add_example_hash():
+    app.logger.info(
+        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    data = request.get_json(force=True)
+    add_json_hash = services.addjson_hash(**data)
+    # app.logger.info('add_json_hash{}'.format(data))
+    try:
+        if 'error' not in add_json_hash:
+            return Response(json.dumps({'status': 'ok', 'json': add_json_hash}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': "add_json"}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+
+
+# Use Redis's Hash for getting the JSON document 
+# @app.route('/api/v1/examples/hash', methods=['GET'])
+# def api_get_example_hash():
+
 
 
 if __name__ == '__main__':
