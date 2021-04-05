@@ -14,9 +14,9 @@ Use this model to pass any additional environment variables into the APP
 # REDIS_HOST = os.environ['REDIS_HOST']
 # REDIS_PORT = os.environ['REDIS_PORT']
 
-REDIS_HOST = 'redis-12168.c13621.us-west1-mz.gcp.cloud.rlrcp.com'
-REDIS_PORT = '12168'
-REDIS_PASSWORD = 'fOrCBBBH57TBsHipyl4yuFR4fefg3CnC'
+REDIS_HOST = 'HOSTNAME'
+REDIS_PORT = 'PORT'
+REDIS_PASSWORD = 'PASSWORD'
 
 ENV = os.environ['ENV']
 
