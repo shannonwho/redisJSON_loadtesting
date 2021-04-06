@@ -1,12 +1,16 @@
+import uuid
+
+
 smallObj= {
-"sclr" : 0,
-"str" : "b",
-"sub_doc" : {
+'id':  "smallStaticObj:" + str(uuid.uuid4()),
+'sclr' : 0,
+'str' : "b",
+'sub_doc' : {
 	"sclr" : 10,
 	"str" : "c",
 	"arr" : [1,2,3,{"sclr" : 20, "str":"d"}]
 },
-"array_of_docs" : [
+'array_of_docs' : [
     -1,
     {	       
         "sclr" : 11,
@@ -33,6 +37,7 @@ smallObj= {
     null,
 """
 bigObj = {
+        'id':   "bigStaticObj:" + str(uuid.uuid4()),
         "integer": 1234567890,
         "real": -9876.543210,
         "e": 0.123456789e-12,

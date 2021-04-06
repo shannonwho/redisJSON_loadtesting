@@ -9,6 +9,7 @@ import string
 import requests
 from rejson import Client, Path
 from demo.utils.sampleJSON import smallObj,bigObj
+
 from faker import Faker
 from faker.providers import company
 from datetime import time
@@ -53,146 +54,189 @@ def get_id(pattern):
         return {'error':str(e)}
 
 fields = ['id','name','address','location']
-#,'location','latitude','longitude' 
+
 
 """ Build the TaskSet """
 class test(TaskSet):
     """ task functions to be used in the TaskSet """
-    @tag('addSimpleJSON')
+
+    @tag('add_static_small_json')
     @task(3)
-    def add_simple_json(self):
-        simple_json = {
-            'id':   "simple:" + str(uuid.uuid4()),
+    def add_static_small_json(self):
+        json_doc = json.dumps(smallObj)
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=60,
+            name='/api/v1/add_static_small_json')
+        self.client.cookies.clear()
+
+
+    @tag('add_random_small_json')
+    @task(3)
+    def add_random_small_json(self):
+        json_doc = {
+            'id':   "basicUser:" + str(uuid.uuid4()),
             'name': fake.company(),
-            'number': fake.random_int(min=0, max=15),
+            'age': fake.random_int(min=0, max=100),
             'location': str(fake.latitude()),
             'address': fake.street_address()
         }
-        simple_json_d = json.dumps(simple_json)
+        json_doc = json.dumps(json_doc)
 
-        self.client.post('/api/v1/examples/redisjson',
-            data=simple_json_d,
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
             headers={'Content-Type': 'application/json'},
-            timeout=20,
-            name='/api/v1/simple_json')
+            timeout=60,
+            name='/api/v1/add_random_small_json')
         self.client.cookies.clear()
 
+
+
     #POST nested JSON
-    @tag('addNestedJSON')
+    @tag('add_static_big_json')
     @task(3)
-    def add_nested_json(self):
+    def add_static_big_json(self):
+        json_doc = json.dumps(bigObj)
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=60,
+            name='/api/v1/add_static_big_json')
+        self.client.cookies.clear()
+
+
+    @tag('add_random_big_json')
+    @task(3)
+    def add_random_big_json(self):
         nested_json = {
             'id': "advancedUser:" + str(uuid.uuid4()),
             'name': fake.company(),
             'activeStatus': False,
-            'number': str(fake.random_int(min=0, max=15)),
+            'age': str(fake.random_int(min=0, max=100)),
             'location':{
                 'latitude': fake.latitude(),
-                'longitude':fake.longitude(),
-                'number': fake.random_int(min=0, max=15)
-                },
-            'address': [fake.street_address(), fake.street_address(), fake.street_address()]
+                'longitude':fake.longitude()
+            },
+            'address': [
+                fake.street_address(), 
+                fake.street_address(), 
+                fake.street_address()]
             }
-        self.client.post('/api/v1/examples/redisjson',
+        self.client.post('/api/v1/redisjson',
             data=json.dumps(nested_json,use_decimal=True),
             headers={'Content-Type': 'application/json'},
-            timeout=20,
-            name='/api/v1/nested_json')
+            timeout=60,
+            name='/api/v1/add_random_big_json')
         self.client.cookies.clear()
 
-    @tag('addSimpleJSONByHash')
+    @tag('add_static_simple_json_hash')
     @task(3)
-    def add_simple_json_by_hash(self):
-        simple_json = {
+    def add_static_simple_json_hash(self):
+        json_doc = json.dumps(smallObj)
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=60,
+            name='/api/v1/add_static_simple_json_hash')
+        self.client.cookies.clear()
+
+    @tag('add_random_simple_json_hash')
+    @task(3)
+    def add_random_simple_json_hash(self):
+        json_doc = {
             'id':   "simpleHash:" + str(uuid.uuid4()),
             'name': fake.company(),
-            'number': fake.random_int(min=0, max=15),
+            'age': fake.random_int(min=0, max=100),
             'location': str(fake.latitude()),
             'address': fake.street_address()
         }
-        simple_json_d = json.dumps(simple_json)
+        json_doc = json.dumps(json_doc)
 
-        self.client.post('/api/v1/examples/hash',
-            data=simple_json_d,
+        self.client.post('/api/v1/hash',
+            data=json_doc,
             headers={'Content-Type': 'application/json'},
-            timeout=20,
-            name='/api/v1/simple_json_by_hash')
+            timeout=60,
+            name='/api/v1/add_random_simple_json_hash')
         self.client.cookies.clear()
 
     @tag('getJSONByKey')
-    @task(3)
+    #@task(3)
     def get_json_by_key(self):
-        id = get_id('simple')
-        self.client.get('/api/v1/examples/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getJsonByKey')
+        id = get_id('basicUser')
+        self.client.get('/api/v1/doc/{}'.format(random.choice(id)), timeout=60, name='/api/v1/getJsonByKey')
         self.client.cookies.clear()
 
+
     @tag('getHashByKey')
-    @task(3)
+    #@task(3)
     def get_hash_by_key(self):
-        id = get
+        id = get_id('simpleHash')
+        self.client.get('/api/v1/hash/{}'.format(random.choice(id)), timeout=60, name='/api/v1/getHashByKey')
+        self.client.cookies.clear()
 
 
     @tag('getValueByKeyAndField')
-    @task(3)
+    #@task(3)
     def get_json_by_key_and_field(self):
-        id= get_id('simple')
-        self.client.get('/api/v1/examples/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=20, name='/api/v1/examples/getValueByKeyAndFields')
+        id= get_id('basicUser')
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=60, name='/api/v1/getValueByKeyAndFields')
         self.client.cookies.clear()
 
     @tag('getListOfFieldsByKey')
-    @task(1)
+    #@task(1)
     def get_list_of_fields_by_key(self):
-        id = get_id('nested')
-        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=20, name='/api/v1/examples/getListOfFieldsByKey')
+        id = get_id('advancedUser')
+        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=60, name='/api/v1/examples/getListOfFieldsByKey')
         self.client.cookies.clear()
 
 
     @tag('appendString')
-    @task(1)
+    #@task(1)
     def append_string(self):
-        id = get_id('simple')
+        id = get_id('basicUser')
         append = {
             'key': random.choice(id),
             'field': 'name',
             'str': ' Hu'
         }
-        self.client.put('/api/v1/examples/append',
+        self.client.put('/api/v1/redisjson/append',
             data=json.dumps(append),
             headers={'Content-Type': 'application/json'},
-            timeout=20,
+            timeout=60,
             name='/api/v1/appendString')
         self.client.cookies.clear()
 
 
     @tag('NumIncrby')
-    @task(1)
+    #@task(1)
     def num_incr_by(self):
-        id = get_id('simple')
+        id = get_id('basicUser')
         fieldNum = {
             'key': random.choice(id),
-            'field': 'number',
+            'field': 'age',
             'num': random.randint(1,10)
         }
-        self.client.put('/api/v1/examples/increby',
+        self.client.put('/api/v1/redisjson/increby',
             data=json.dumps(fieldNum),
             headers={'Content-Type': 'application/json'},
-            timeout=20,
+            timeout=60,
             name='/api/v1/numbIncryBy')
         self.client.cookies.clear()
 
     @tag('NumMultiby')
-    @task(1)
+    #@task(1)
     def num_multi_by(self):
-        id = get_id('simple')
+        id = get_id('basicUser')
         fieldNum = {
             'key': random.choice(id),
-            'field': 'number',
+            'field': 'age',
             'num': random.randint(1,10)
         }
-        self.client.put('/api/v1/examples/multiby',
+        self.client.put('/api/v1/redisjson/multiby',
             data=json.dumps(fieldNum),
             headers={'Content-Type': 'application/json'},
-            timeout=20,
+            timeout=60,
             name='/api/v1/numMultiBy')
         self.client.cookies.clear()
 

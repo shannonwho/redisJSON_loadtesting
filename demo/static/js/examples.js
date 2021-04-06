@@ -7,12 +7,14 @@ $(document).ready(function(){
 
 });
 
+//get a list of keys based on the key pattern (similar to SCAN)
 async function getExamples() {
     $('#get-examples-response-time').html('');
     $('#get-examples-response-body').html('');
-    const id= $('#get-examples-id').val();
+    const patterns= $('#get-examples-pattern').val();
+
     try {
-    const response = await axios.get('/api/v1/keys');
+    const response = await axios.get('/api/v1/keys?pattern='+patterns);
     $('#get-examples-response-time').html(response.duration.toString());
     $('#get-examples-response-body').html( JSON.stringify( response.data, null, "\t" ) );
     }
@@ -26,7 +28,7 @@ async function getExample() {
     $('#get-example-response-body').html('');
     const id= $('#get-example-id').val();
     try {
-    const response = await axios.get('/api/v1/examples/' +  id );
+    const response = await axios.get('/api/v1/doc/' +  id );
     $('#get-example-response-time').html(response.duration.toString());
     $('#get-example-response-body').html( JSON.stringify( response.data, null, "\t" ) );
     }
@@ -42,7 +44,7 @@ async function getExampleNames() {
     const id= $('#get-example-name').val();
     const field = $('#get-example-field').val();
     try {
-    const response = await axios.get('/api/v1/examples/'+ id + '/' + field);
+    const response = await axios.get('/api/v1/subdoc/'+ id + '/' + field);
     $('#get-example-names-response-time').html(response.duration.toString());
     $('#get-example-names-response-body').html( JSON.stringify( response.data, null, "\t" ) );
     }
@@ -67,7 +69,7 @@ async function postExample() {
         try {
             const response = await axios({
                 method: 'post',
-                url: '/api/v1/examples/redisjson',
+                url: '/api/v1/redisjson',
                 headers: {'Content-Type': 'application/json' },
                 data: {id:realID, name:name}
             });

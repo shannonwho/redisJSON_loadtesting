@@ -5,11 +5,14 @@ The local deployment needs more than 2GB of memory allocated in Docker preferenc
 
 cloud deployment: gcp credentials file and environment settings
 
-# Enable the admin cli (required)
+# Enable a virtual environment (required)
+build new virtualenv
 ```python3 -m venv venv```
 
+activate your virtualenv 
 ```. venv/bin/activate```
 
+run the docker compose
 ```docker-compose up .```
 
 # Overall architecture:

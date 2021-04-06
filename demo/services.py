@@ -13,7 +13,7 @@ import uuid
 examples_reference = {
     'index': 'examples_idx',
     'index_name_delimiter': ':',
-    'fields': 'id,_id,number,name,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,activeStatus'
+    'fields': 'id,_id,number,name,age,description,address,location,latitude,longitude,zipcode,home,city,country,addressLn,activeStatus,sclr,str,sub_doc,array_of_docs'
 }
 
 
@@ -27,6 +27,7 @@ def scan_keys(pattern,cnt):
         # while cur != 0:
         #     cur, keys = rc.connection.scan(cursor=cur, match=pattern+'*',count=10)
         #     result.extend(keys)
+        print("DEBUG scan_keys {}".format(json.dumps(result)))
         return result
     except Exception as e:
         return {'error':str(e)}
@@ -42,15 +43,17 @@ def scan_fields(key, p):
 
 def add_json(**kwargs):
     #restrict to the selected fields 
-    allowed_fields = examples_reference['fields'].split(',')
+    # allowed_fields = examples_reference['fields'].split(',')
     #create a python obj(dict) first
     new_obj = {}
     id_template = 'simple:' + str(uuid.uuid4())
     for key,value in kwargs.items():
-        if key in allowed_fields:
+        # if key in allowed_fields:
             new_obj[key] = value
-
+            
     id = new_obj['id'] if new_obj['id'] else id_template
+    
+    print('DEBUG SERVICE {}'.format(json.dumps(new_obj)))
 
     try:
         rc.connection.jsonset(id, rc.Path.rootPath(), new_obj)
@@ -130,7 +133,7 @@ def addjson_hash(**kwargs):
     id_template = 'simpleHash:' + str(uuid.uuid4())
 
     for key,value in kwargs.items():
-        if key in allowed_fields:
+        # if key in allowed_fields:
             new_obj[key] = value
     id = new_obj['id'] if new_obj['id'] else id_template
     try:
@@ -139,4 +142,10 @@ def addjson_hash(**kwargs):
     except Exception as e:
         return {'error-multiBy': str(e)}
 
-    
+def getjson_hash(key):
+    try:
+        return rc.connection.hgetall(id)
+    except Exception as e:
+        return {'error-multiBy': str(e)}
+
+
