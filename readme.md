@@ -16,14 +16,17 @@ run the docker compose
 ```docker-compose up .```
 
 # Overall architecture:
-
-- REST API APP
+- REST API Servoces:
   - connection pooling
-  - RedisJSON 1 
-- Locust Load testing
+  - RedisJSON 1.7
+  - Redis Hash
+
+- Locust Load testing:
+  - Group test set
+  - Event hook
+  - Distributed
+  - Spawn rate
 - Visualization 
-
-
 
 
 # The REST API application:
@@ -34,9 +37,14 @@ The REST API is based on RedisJSON module for basic JSON Operations:
   - Get the value of a field by key and field's name
   - Get the sub-document(nested object) by key and field's name
 - POST
-  - Simple JSON with no subdocument(nested obejct)
-  - Nested JSON with array and subdocument
+  - Small size object (200-300Bytes)
+    - static fields 
+    - Randomly assigned JSON with no subdocument(nested obejct) 
+  - Big size object (1000-2000bytes)
+    - Static fields
+    - Nested JSON with array and subdocument
 - PUT
+  - Update a field on the RedisJSON 
   - Append new object/value into an existing JSON object
   - Increase/Multiplying a numeric item in the JSON
 

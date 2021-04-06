@@ -2,3 +2,5 @@ rejson
 faker
 requests
 simplejson
+prometheus_client
+six
