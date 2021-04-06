@@ -53,11 +53,11 @@ def add_json(**kwargs):
             
     id = new_obj['id'] if new_obj['id'] else id_template
     
-    print('DEBUG SERVICE {}'.format(json.dumps(new_obj)))
+    # print('DEBUG SERVICE {}'.format(json.dumps(new_obj)))
 
     try:
         rc.connection.jsonset(id, rc.Path.rootPath(), new_obj)
-        return rc.connection.jsonget(id)
+        return json.dumps(new_obj)
 
     except Exception as e:
         return {'error':str(e)}
@@ -86,12 +86,22 @@ def getSubdoc(id, field):
         return {'error': str(e)}
 
 
+#Update a field on JSON at path. 
+def updateField(key, field, str):
+    try:
+        rc.connection.jsonset(name=key, path='.'+field, obj=str, xx=True)
+        return rc.connection.jsonget(key)
+    except Exception as e:
+        return {'error': str(e)}
+
+
+
 #Append the json-string value(s) the string at path .
 def appendStringToField(key, field, str):
     try:
         #restrict to the selected fields 
         #id, field, value
-        print('appendStringToField: key {}, field {}, str {} '.format(key,field,str))
+        # print('appendStringToField: key {}, field {}, str {} '.format(key,field,str))
         rc.connection.jsonstrappend(name=key, path='.'+ field, string=str)
         return rc.connection.jsonget(key)
     except Exception as e:
@@ -126,19 +136,13 @@ def numMultiBy(key, field, multiby):
 
 # Add JSON through HASH:
 def addjson_hash(**kwargs):
-    #restrict to the selected fields 
-    allowed_fields = examples_reference['fields'].split(',')
     #create a python obj(dict) first
     new_obj = {}
     id_template = 'simpleHash:' + str(uuid.uuid4())
 
-    for key,value in kwargs.items():
-        # if key in allowed_fields:
-            new_obj[key] = value
-    id = new_obj['id'] if new_obj['id'] else id_template
     try:
         rc.connection.hmset(id,kwargs)
-        return rc.connection.hgetall(id)
+        return json.dumps(kwargs)
     except Exception as e:
         return {'error-multiBy': str(e)}
 
@@ -149,3 +153,10 @@ def getjson_hash(key):
         return {'error-multiBy': str(e)}
 
 
+#Update a field on JSON at path. 
+def updateField_hash(key, field, str):
+    try:
+        rc.connection.hset(key, field, str)
+        return rc.connection.hgetall(key)
+    except Exception as e:
+        return {'error': str(e)}

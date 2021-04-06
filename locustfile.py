@@ -1,5 +1,7 @@
 from locust import HttpUser, User, TaskSet, task, web, runners, between, tag
 # from locust.runners import MasterLocustRunner
+from locust.contrib.fasthttp import FastHttpUser
+
 from locust.stats import sort_stats
 # import json
 import simplejson as json
@@ -34,7 +36,7 @@ def to_serializable(val):
 
 #pull values from env vars
 environment = os.environ['ENV']
-req_timeout_value = int(os.environ['LOAD_GEN_REQUEST_TIMEOUT']) if os.environ['LOAD_GEN_REQUEST_TIMEOUT'] else 20
+req_timeout_value = int(os.environ['LOAD_GEN_REQUEST_TIMEOUT']) if os.environ['LOAD_GEN_REQUEST_TIMEOUT'] else 50
 api_endpoint = 'http://app:5000/api/v1/'
 
 # https://faker.readthedocs.io/en/master/
@@ -48,7 +50,7 @@ def get_id(pattern):
     try:
         resp = requests.get(api_endpoint + 'keys?pattern=' + pattern, verify=False)
         r = resp.json()
-        keys = r.get('examples')
+        keys = r.get('json')
         return keys
     except Exception as e:
         return {'error':str(e)}
@@ -67,9 +69,9 @@ class test(TaskSet):
         self.client.post('/api/v1/redisjson',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/add_static_small_json')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
 
     @tag('add_random_small_json')
@@ -87,9 +89,9 @@ class test(TaskSet):
         self.client.post('/api/v1/redisjson',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/add_random_small_json')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
 
 
@@ -101,9 +103,9 @@ class test(TaskSet):
         self.client.post('/api/v1/redisjson',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/add_static_big_json')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
 
     @tag('add_random_big_json')
@@ -126,9 +128,9 @@ class test(TaskSet):
         self.client.post('/api/v1/redisjson',
             data=json.dumps(nested_json,use_decimal=True),
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/add_random_big_json')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
     @tag('add_static_simple_json_hash')
     @task(3)
@@ -137,9 +139,9 @@ class test(TaskSet):
         self.client.post('/api/v1/redisjson',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/add_static_simple_json_hash')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
     @tag('add_random_simple_json_hash')
     @task(3)
@@ -156,40 +158,71 @@ class test(TaskSet):
         self.client.post('/api/v1/hash',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/add_random_simple_json_hash')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
     @tag('getJSONByKey')
     #@task(3)
     def get_json_by_key(self):
         id = get_id('basicUser')
-        self.client.get('/api/v1/doc/{}'.format(random.choice(id)), timeout=60, name='/api/v1/getJsonByKey')
-        self.client.cookies.clear()
+        self.client.get('/api/v1/doc/{}'.format(random.choice(id)), timeout=50, name='/api/v1/getJsonByKey')
+        # self.client.cookies.clear()
 
 
     @tag('getHashByKey')
     #@task(3)
     def get_hash_by_key(self):
         id = get_id('simpleHash')
-        self.client.get('/api/v1/hash/{}'.format(random.choice(id)), timeout=60, name='/api/v1/getHashByKey')
-        self.client.cookies.clear()
+        self.client.get('/api/v1/hash/{}'.format(random.choice(id)), timeout=50, name='/api/v1/getHashByKey')
+        # self.client.cookies.clear()
 
 
     @tag('getValueByKeyAndField')
     #@task(3)
     def get_json_by_key_and_field(self):
         id= get_id('basicUser')
-        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=60, name='/api/v1/getValueByKeyAndFields')
-        self.client.cookies.clear()
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=50, name='/api/v1/getValueByKeyAndFields')
+        # self.client.cookies.clear()
 
     @tag('getListOfFieldsByKey')
     #@task(1)
     def get_list_of_fields_by_key(self):
         id = get_id('advancedUser')
-        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=60, name='/api/v1/examples/getListOfFieldsByKey')
-        self.client.cookies.clear()
+        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
+        # self.client.cookies.clear()
 
+    @tag('updateField_json')
+    @task(2)
+    def update_field(self):
+        id = get_id('basicUser')
+        update = {
+            'key': random.choice(id),
+            'field': 'name',
+            'str': 'Redis Lab'
+        }
+        self.client.put('/api/v1/redisjson/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/updateField_json')
+    
+
+    @tag('updateField_hash')
+    @task(2)
+    def update_field(self):
+        id = get_id('simpleHash')
+        update = {
+            'key': random.choice(id),
+            'field': 'name',
+            'str': 'Redis Lab'
+        }
+        self.client.put('/api/v1/hash/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/updateField_hash')
+    
 
     @tag('appendString')
     #@task(1)
@@ -203,13 +236,13 @@ class test(TaskSet):
         self.client.put('/api/v1/redisjson/append',
             data=json.dumps(append),
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/appendString')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
 
     @tag('NumIncrby')
-    #@task(1)
+    @task(1)
     def num_incr_by(self):
         id = get_id('basicUser')
         fieldNum = {
@@ -220,12 +253,12 @@ class test(TaskSet):
         self.client.put('/api/v1/redisjson/increby',
             data=json.dumps(fieldNum),
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/numbIncryBy')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
     @tag('NumMultiby')
-    #@task(1)
+    @task(1)
     def num_multi_by(self):
         id = get_id('basicUser')
         fieldNum = {
@@ -236,14 +269,16 @@ class test(TaskSet):
         self.client.put('/api/v1/redisjson/multiby',
             data=json.dumps(fieldNum),
             headers={'Content-Type': 'application/json'},
-            timeout=60,
+            timeout=50,
             name='/api/v1/numMultiBy')
-        self.client.cookies.clear()
+        # self.client.cookies.clear()
 
 """ Generate the load """
 
-class GenerateLoad(HttpUser):
+class GenerateLoad(FastHttpUser):
+    connection_timeout=100
+    network_timeout=50
     tasks = [test]
-    min_wait = 5000
-    max_wait = 15000
+    # min_wait = 5000
+    # max_wait = 20000
 

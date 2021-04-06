@@ -97,7 +97,7 @@ def api_get_keys():
 
     try:
         if 'error' not in keys:
-            return Response(json.dumps({'status': 'ok', 'examples': keys}, indent=4, default=str),
+            return Response(json.dumps({'status': 'ok', 'json': keys}, indent=4, default=str),
                             mimetype='application/json', status=200)
         else:
             return Response(json.dumps({'error': keys}, indent=4, default=str), mimetype='application/json',
@@ -210,30 +210,28 @@ def api_update_field():
         'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     
     data = request.get_json(force=True)
-    app.logger.info('APPEND request body: {}'.format(data))
+    app.logger.info('UPDATE request body: {}'.format(data))
 
     if data:
         key = data.get('key', None)
         field = data.get('field', None)
         str = data.get('str', None)
         #call numIncrBy function
-        appenStr = services.appendStringToField(key,field,str)
+        updateStr = services.updateField(key,field,str)
     else:
         result = {'error': 'invalid request'}
 
     try:
         if 'error' not in data:
-            return Response(json.dumps({'status':'ok', 'json': data}, indent=4, default=str),
+            return Response(json.dumps({'status':'ok', 'json': updateStr}, indent=4, default=str),
                             mimetype='application/json', status=200)
         else:
-            return Response(json.dumps({'error': data}, indent=4, default=str), mimetype='application/json',
+            return Response(json.dumps({'error': updateStr}, indent=4, default=str), mimetype='application/json',
                             status=400)
     except Exception:
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
-
-
 
 
 
@@ -257,10 +255,10 @@ def api_append_field():
 
     try:
         if 'error' not in data:
-            return Response(json.dumps({'status':'ok', 'json': data}, indent=4, default=str),
+            return Response(json.dumps({'status':'ok', 'json': appenStr}, indent=4, default=str),
                             mimetype='application/json', status=200)
         else:
-            return Response(json.dumps({'error': data}, indent=4, default=str), mimetype='application/json',
+            return Response(json.dumps({'error': appenStr}, indent=4, default=str), mimetype='application/json',
                             status=400)
     except Exception:
         app.logger.warn('request failed:', exc_info=True)
@@ -379,6 +377,35 @@ def api_get_example_hash(id):
                         status=400)
 
 
+#Update a value to a key on Hash
+@app.route('/api/v1/hash/update', methods=['PUT'])
+def api_update_field_hash():
+    app.logger.info(
+        'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    
+    data = request.get_json(force=True)
+    app.logger.info('HASH-UPDATE request body: {}'.format(data))
+
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+        str = data.get('str', None)
+        #call numIncrBy function
+        appenStr = services.updateField_hash(key,field,str)
+    else:
+        result = {'error': 'invalid request'}
+
+    try:
+        if 'error' not in data:
+            return Response(json.dumps({'status':'ok', 'json': appenStr}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': appenStr}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
 
 
 #Update a field in json doc on HASH
