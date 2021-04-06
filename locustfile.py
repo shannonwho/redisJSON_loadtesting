@@ -132,7 +132,7 @@ class test(TaskSet):
             name='/api/v1/add_random_big_json')
         # self.client.cookies.clear()
 
-    @tag('add_static_simple_json_hash')
+    @tag('add_static_simple_hash')
     @task(3)
     def add_static_simple_json_hash(self):
         json_doc = json.dumps(smallObj)
@@ -140,10 +140,10 @@ class test(TaskSet):
             data=json_doc,
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/add_static_simple_json_hash')
+            name='/api/v1/add_static_simple_hash')
         # self.client.cookies.clear()
 
-    @tag('add_random_simple_json_hash')
+    @tag('add_random_simple_hash')
     @task(3)
     def add_random_simple_json_hash(self):
         json_doc = {
@@ -159,7 +159,7 @@ class test(TaskSet):
             data=json_doc,
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/add_random_simple_json_hash')
+            name='/api/v1/add_random_simple_hash')
         # self.client.cookies.clear()
 
     @tag('getJSONByKey')
