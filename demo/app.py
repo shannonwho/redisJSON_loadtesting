@@ -86,11 +86,11 @@ def api_get_keys():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     limit = request.args.get('limit') if request.args.get('limit') else 10
-    # offset = request.args.get('offset') if request.args.get('offset') else 0
     pattern = request.args.get('pattern') if request.args.get('pattern') else 'basicUser'
 
     #show all the json item 
     keys = services.scan_keys(pattern,cnt=limit)
+    app.logger.info("/api/v1/keys: RESULT - {}".format(json.dumps(keys)))
     full_json = []
     for k in keys:
         full_json.append(services.getJsonByKey(k))

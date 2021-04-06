@@ -1,5 +1,5 @@
 scrape_configs:
-- job_name: locust
+- job_name: locust_master
   scrape_interval: 5s
   static_configs:
   - targets:

@@ -20,14 +20,12 @@ examples_reference = {
 def scan_keys(pattern,cnt):
     "Returns a list of all the keys matching a given pattern"
     result = []
+    print("DEBUG pattern {}".format(pattern))
     try:
-        cur, keys  = rc.connection.scan(cursor=0, match=pattern+'*',count=cnt)
+        cur, keys  = rc.connection.scan(cursor=0, match=pattern+'*',count=10)
         result.extend(keys)
-        # Get all keys Use below code
-        # while cur != 0:
-        #     cur, keys = rc.connection.scan(cursor=cur, match=pattern+'*',count=10)
-        #     result.extend(keys)
-        print("DEBUG scan_keys {}".format(json.dumps(result)))
+        
+        print("DEBUG scan_keys cur {}, keys {}; result {}".format(cur,keys, json.dumps(result)))
         return result
     except Exception as e:
         return {'error':str(e)}
@@ -148,7 +146,7 @@ def addjson_hash(**kwargs):
 
 def getjson_hash(key):
     try:
-        return rc.connection.hgetall(id)
+        return rc.connection.hgetall(key)
     except Exception as e:
         return {'error-multiBy': str(e)}
 

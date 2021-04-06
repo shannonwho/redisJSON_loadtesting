@@ -165,9 +165,7 @@ fields = ['id','name','address','location']
 
 
 """ Build the TaskSet """
-class test(TaskSet):
-    """ task functions to be used in the TaskSet """
-
+class testOnPost(TaskSet):
     @tag('add_static_small_json')
     @task(3)
     def add_static_small_json(self):
@@ -178,7 +176,6 @@ class test(TaskSet):
             timeout=50,
             name='/api/v1/add_static_small_json')
         # self.client.cookies.clear()
-
 
     @tag('add_random_small_json')
     @task(3)
@@ -199,9 +196,6 @@ class test(TaskSet):
             name='/api/v1/add_random_small_json')
         # self.client.cookies.clear()
 
-
-
-    #POST nested JSON
     @tag('add_static_big_json')
     @task(3)
     def add_static_big_json(self):
@@ -212,7 +206,6 @@ class test(TaskSet):
             timeout=50,
             name='/api/v1/add_static_big_json')
         # self.client.cookies.clear()
-
 
     @tag('add_random_big_json')
     @task(3)
@@ -240,7 +233,7 @@ class test(TaskSet):
 
     @tag('add_static_simple_hash')
     @task(3)
-    def add_static_simple_json_hash(self):
+    def add_static_simple_hash(self):
         json_doc = json.dumps(smallObj)
         self.client.post('/api/v1/redisjson',
             data=json_doc,
@@ -251,7 +244,7 @@ class test(TaskSet):
 
     @tag('add_random_simple_hash')
     @task(3)
-    def add_random_simple_json_hash(self):
+    def add_random_simple_hash(self):
         json_doc = {
             'id':   "simpleHash:" + str(uuid.uuid4()),
             'name': fake.company(),
@@ -268,8 +261,48 @@ class test(TaskSet):
             name='/api/v1/add_random_simple_hash')
         # self.client.cookies.clear()
 
+    @tag('add_static_big_hash')
+    @task(3)
+    def add_static_big_json_hash(self):
+        json_doc = json.dumps(bigObj)
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/add_static_big_hash')
+        # self.client.cookies.clear()
+
+    @tag('add_random_big_hash')
+    @task(3)
+    def add_random_big_hash(self):
+        nested_json = {
+            'id': "advancedUser:" + str(uuid.uuid4()),
+            'name': fake.company(),
+            'activeStatus': False,
+            'age': str(fake.random_int(min=0, max=100)),
+            'location':{
+                'latitude': fake.latitude(),
+                'longitude':fake.longitude()
+            },
+            'address': [
+                fake.street_address(), 
+                fake.street_address(), 
+                fake.street_address()]
+        }
+        json_doc = json.dumps(nested_json)
+        self.client.post('/api/v1/hash',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/add_random_big_hash')
+        # self.client.cookies.clear()
+
+
+class testOnGet(TaskSet):
+    """ task functions to be used in the TaskSet """
+
     @tag('getJSONByKey')
-    #@task(3)
+    @task(3)
     def get_json_by_key(self):
         id = get_id('basicUser')
         self.client.get('/api/v1/doc/{}'.format(random.choice(id)), timeout=50, name='/api/v1/getJsonByKey')
@@ -284,20 +317,22 @@ class test(TaskSet):
         # self.client.cookies.clear()
 
 
-    @tag('getValueByKeyAndField')
-    #@task(3)
+    @tag('getField')
+    @task(3)
     def get_json_by_key_and_field(self):
         id= get_id('basicUser')
         self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=50, name='/api/v1/getValueByKeyAndFields')
         # self.client.cookies.clear()
 
     @tag('getListOfFieldsByKey')
-    #@task(1)
+    @task(3)
     def get_list_of_fields_by_key(self):
         id = get_id('advancedUser')
         self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
         # self.client.cookies.clear()
 
+
+class testOnPut(TaskSet):
     @tag('updateField_json')
     @task(2)
     def update_field(self):
@@ -312,7 +347,6 @@ class test(TaskSet):
             headers={'Content-Type': 'application/json'},
             timeout=50,
             name='/api/v1/updateField_json')
-    
 
     @tag('updateField_hash')
     @task(2)
@@ -328,7 +362,6 @@ class test(TaskSet):
             headers={'Content-Type': 'application/json'},
             timeout=50,
             name='/api/v1/updateField_hash')
-    
 
     @tag('appendString')
     #@task(1)
@@ -345,7 +378,6 @@ class test(TaskSet):
             timeout=50,
             name='/api/v1/appendString')
         # self.client.cookies.clear()
-
 
     @tag('NumIncrby')
     @task(1)
@@ -384,7 +416,7 @@ class test(TaskSet):
 class GenerateLoad(FastHttpUser):
     connection_timeout=100
     network_timeout=50
-    tasks = [test]
+    tasks = [testOnGet,testOnPost,testOnPut]
     # min_wait = 5000
     # max_wait = 20000
 

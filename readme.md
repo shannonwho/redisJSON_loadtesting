@@ -28,10 +28,9 @@ run the docker compose
   - Spawn rate
   
 - Visualization: (This is a super-simple solution that allows us to easily visualize how our application performs on user-end as well as resource-wise.)
-  - cAdvisor: API container usage monitoring
-  - Scrape some customized metrics from Locust.io via Prometheus
-  - Visualize them all on Grafana
-
+  - cAdvisor: API container usage monitoring (http://localhost:8080/metrics) 
+  - Scrape some customized metrics from Locust.io via Prometheus (http://localhost:8089/metrics)
+  - Visualize them all on Grafana (port: 3000)
 
 # The REST API application:
 
