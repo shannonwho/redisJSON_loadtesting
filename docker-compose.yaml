@@ -75,3 +75,15 @@ services:
         - --config.file=/etc/prometheus/prometheus.yaml
     volumes:
         - ./prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+
+
+  grafana:
+        image: grafana/grafana
+        container_name: grafana
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./grafana.ini:/etc/grafana/grafana.ini
+            - ./datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+        depends_on:
+            - prometheus

@@ -26,7 +26,11 @@ run the docker compose
   - Event hook
   - Distributed
   - Spawn rate
-- Visualization 
+  
+- Visualization: (This is a super-simple solution that allows us to easily visualize how our application performs on user-end as well as resource-wise.)
+  - cAdvisor: API container usage monitoring
+  - Scrape some customized metrics from Locust.io via Prometheus
+  - Visualize them all on Grafana
 
 
 # The REST API application:
