@@ -147,8 +147,6 @@ def locust_init(environment, runner, **kwargs):
         REGISTRY.register(LocustPrometheusCollector(environment, runner))
 
 
-
-
 """Functions for tasks to be used in the Tasl set"""
 
 def get_id(pattern):
@@ -167,7 +165,7 @@ fields = ['id','name','address','location']
 """ Build the TaskSet """
 class testOnPost(TaskSet):
     @tag('add_static_small_json')
-    @task(3)
+    # @task(3)
     def add_static_small_json(self):
         json_doc = json.dumps(smallObj)
         self.client.post('/api/v1/redisjson',
@@ -178,11 +176,11 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_small_json')
-    @task(3)
+    # @task(3)
     def add_random_small_json(self):
         json_doc = {
             'id':   "basicUser:" + str(uuid.uuid4()),
-            'name': fake.company(),
+            'name': fake.name(),
             'age': fake.random_int(min=0, max=100),
             'location': str(fake.latitude()),
             'address': fake.street_address()
@@ -197,7 +195,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_big_json')
-    @task(3)
+    # @task(3)
     def add_static_big_json(self):
         json_doc = json.dumps(bigObj)
         self.client.post('/api/v1/redisjson',
@@ -211,14 +209,29 @@ class testOnPost(TaskSet):
     @task(3)
     def add_random_big_json(self):
         nested_json = {
-            'id': "advancedUser:" + str(uuid.uuid4()),
-            'name': fake.company(),
+            'id': "advancedUserJson:" + str(uuid.uuid4()),
+            'name': fake.name(),
             'activeStatus': False,
             'age': str(fake.random_int(min=0, max=100)),
-            'location':{
+            'contract':
+                {
+                    'name': fake.company(),
+                    'occupation': 'Solution Architect',
+                    'zipCode': "92603"
+                },
+            'location':[
+                {
                 'latitude': fake.latitude(),
                 'longitude':fake.longitude()
-            },
+                },
+                {
+                'latitude': fake.latitude(),
+                'longitude':fake.longitude()
+                },
+                {
+                'latitude': fake.latitude(),
+                'longitude':fake.longitude()
+                }],
             'address': [
                 fake.street_address(), 
                 fake.street_address(), 
@@ -232,7 +245,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_simple_hash')
-    @task(3)
+    # @task(3)
     def add_static_simple_hash(self):
         json_doc = json.dumps(smallObj)
         self.client.post('/api/v1/redisjson',
@@ -243,7 +256,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_simple_hash')
-    @task(3)
+    # @task(3)
     def add_random_simple_hash(self):
         json_doc = {
             'id':   "simpleHash:" + str(uuid.uuid4()),
@@ -262,7 +275,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_big_hash')
-    @task(3)
+    # @task(3)
     def add_static_big_json_hash(self):
         json_doc = json.dumps(bigObj)
         self.client.post('/api/v1/redisjson',
@@ -273,10 +286,10 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_big_hash')
-    @task(3)
+    # @task(3)
     def add_random_big_hash(self):
         nested_json = {
-            'id': "advancedUser:" + str(uuid.uuid4()),
+            'id': "advancedUserHash:" + str(uuid.uuid4()),
             'name': fake.company(),
             'activeStatus': False,
             'age': str(fake.random_int(min=0, max=100)),
@@ -351,35 +364,35 @@ class testOnPut(TaskSet):
     @tag('updateField_json')
     @task(2)
     def update_field(self):
-        id = get_id('advancedUser:')
+        id = get_id('advancedUserJson')
         update = {
             'key': random.choice(id),
             'field': 'name',
+            'str': 'Albert Z'
+        }
+        self.client.put('/api/v1/redisjson/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/updateField')
+
+    @tag('update_nested_field_json')
+    @task(2)
+    def update_field_nested(self):
+        id = get_id('advancedUserJson')
+        update = {
+            'key': random.choice(id),
+            'field': 'contract.name',
             'str': 'Redis Lab'
         }
         self.client.put('/api/v1/redisjson/update',
             data=json.dumps(update),
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/updateField_json')
-
-    @tag('update_nested_field_json')
-    @task(2)
-    def update_field(self):
-        id = get_id('advancedUser')
-        update = {
-            'key': random.choice(id),
-            'field': 'name',
-            'str': 'Redis Lab'
-        }
-        self.client.put('/api/v1/hash/update',
-            data=json.dumps(update),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/updateField_hash')
+            name='/api/v1/update_field_nested')
 
     @tag('appendString')
-    @task(1)
+    # @task(1)
     def append_string(self):
         id = get_id('basicUser')
         append = {
@@ -395,7 +408,7 @@ class testOnPut(TaskSet):
         # self.client.cookies.clear()
 
     @tag('NumIncrby')
-    @task(1)
+    # @task(1)
     def num_incr_by(self):
         id = get_id('basicUser')
         fieldNum = {
@@ -411,7 +424,7 @@ class testOnPut(TaskSet):
         # self.client.cookies.clear()
 
     @tag('NumMultiby')
-    @task(1)
+    # @task(1)
     def num_multi_by(self):
         id = get_id('basicUser')
         fieldNum = {
@@ -431,7 +444,7 @@ class testOnPut(TaskSet):
 class GenerateLoad(FastHttpUser):
     connection_timeout=100
     network_timeout=50
-    tasks = [testOnPost,testOnPut]
+    tasks = [testOnPost, testOnPut]
     # min_wait = 5000
     # max_wait = 20000
 

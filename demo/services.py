@@ -22,7 +22,7 @@ def scan_keys(pattern,cnt):
     result = []
     print("DEBUG pattern {}".format(pattern))
     try:
-        cur, keys  = rc.connection.scan_iter(match=pattern+'*',count=10)
+        cur, keys  = rc.connection.scan(cursor=0,match=pattern+'*',count=10)
         result.extend(keys)
         
         print("DEBUG scan_keys cur {}, keys {}; result {}".format(cur,keys, json.dumps(result)))
