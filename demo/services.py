@@ -22,7 +22,7 @@ def scan_keys(pattern,cnt):
     result = []
     print("DEBUG pattern {}".format(pattern))
     try:
-        cur, keys  = rc.connection.scan(cursor=0, match=pattern+'*',count=10)
+        cur, keys  = rc.connection.scan_iter(match=pattern+'*',count=10)
         result.extend(keys)
         
         print("DEBUG scan_keys cur {}, keys {}; result {}".format(cur,keys, json.dumps(result)))
@@ -70,7 +70,6 @@ def getJsonByKey(key):
 
 def getArrayOfJsonSubByKey(key, field):
     try:
-        # json.mget Topshot:4209e7d8-5167-49a7-a00a-f88291b40a24 Topshot:2b5c6883-8126-4b0d-8ddf-8a7fe723b967 .name
         return rc.connection.jsonmget(id, rc.Path('.'+field))
     except Exception as e:
         return {'error': str(e)}

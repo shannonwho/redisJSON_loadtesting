@@ -63,7 +63,7 @@ def viewExamples():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     full_json = []
-    keys = services.scan_keys("simpleHash*", cnt=10)
+    keys = services.scan_keys("simpleHash", cnt=10)
 
     app.logger.debug(keys)
     if 'error' in keys:

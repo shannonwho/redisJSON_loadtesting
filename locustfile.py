@@ -52,7 +52,7 @@ from prometheus_client import Metric, REGISTRY, exposition
 # Lots of code taken from [mbolek's locust_exporter](https://github.com/mbolek/locust_exporter), thx mbolek!
 
 
-class LocustCollector(object):
+class LocustPrometheusCollector(object):
     registry = REGISTRY
 
     def __init__(self, environment, runner):
@@ -144,7 +144,7 @@ def locust_init(environment, runner, **kwargs):
                 registry = REGISTRY.restricted_registry(request.args.get('name[]'))
             body = encoder(registry)
             return Response(body, content_type=content_type)
-        REGISTRY.register(LocustCollector(environment, runner))
+        REGISTRY.register(LocustPrometheusCollector(environment, runner))
 
 
 
@@ -280,10 +280,25 @@ class testOnPost(TaskSet):
             'name': fake.company(),
             'activeStatus': False,
             'age': str(fake.random_int(min=0, max=100)),
-            'location':{
+            'contract':
+                {
+                    'name': fake.company(),
+                    'occupation': 'Solution Architect',
+                    'zipCode': "92603"
+                },
+            'location':[
+                {
                 'latitude': fake.latitude(),
                 'longitude':fake.longitude()
-            },
+                },
+                {
+                'latitude': fake.latitude(),
+                'longitude':fake.longitude()
+                },
+                {
+                'latitude': fake.latitude(),
+                'longitude':fake.longitude()
+                }],
             'address': [
                 fake.street_address(), 
                 fake.street_address(), 
@@ -336,7 +351,7 @@ class testOnPut(TaskSet):
     @tag('updateField_json')
     @task(2)
     def update_field(self):
-        id = get_id('basicUser')
+        id = get_id('advancedUser:')
         update = {
             'key': random.choice(id),
             'field': 'name',
@@ -348,10 +363,10 @@ class testOnPut(TaskSet):
             timeout=50,
             name='/api/v1/updateField_json')
 
-    @tag('updateField_hash')
+    @tag('update_nested_field_json')
     @task(2)
     def update_field(self):
-        id = get_id('simpleHash')
+        id = get_id('advancedUser')
         update = {
             'key': random.choice(id),
             'field': 'name',
@@ -364,7 +379,7 @@ class testOnPut(TaskSet):
             name='/api/v1/updateField_hash')
 
     @tag('appendString')
-    #@task(1)
+    @task(1)
     def append_string(self):
         id = get_id('basicUser')
         append = {
@@ -416,7 +431,7 @@ class testOnPut(TaskSet):
 class GenerateLoad(FastHttpUser):
     connection_timeout=100
     network_timeout=50
-    tasks = [testOnGet,testOnPost,testOnPut]
+    tasks = [testOnPost,testOnPut]
     # min_wait = 5000
     # max_wait = 20000
 
