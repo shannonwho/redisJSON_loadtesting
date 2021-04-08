@@ -46,12 +46,6 @@ from locust import User, task, events
 from prometheus_client import Metric, REGISTRY, exposition
 
 # This locustfile adds an external web endpoint to the locust master, and makes it serve as a prometheus exporter.
-# Runs it as a normal locustfile, then points prometheus to it.
-# locust -f prometheus_exporter.py --master
-
-# Lots of code taken from [mbolek's locust_exporter](https://github.com/mbolek/locust_exporter), thx mbolek!
-
-
 class LocustPrometheusCollector(object):
     registry = REGISTRY
 
@@ -165,7 +159,7 @@ fields = ['id','name','address','location']
 """ Build the TaskSet """
 class testOnPost(TaskSet):
     @tag('add_static_small_json')
-    # @task(3)
+    @task(3)
     def add_static_small_json(self):
         json_doc = json.dumps(smallObj)
         self.client.post('/api/v1/redisjson',
@@ -176,7 +170,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_small_json')
-    # @task(3)
+    @task(3)
     def add_random_small_json(self):
         json_doc = {
             'id':   "basicUser:" + str(uuid.uuid4()),
@@ -195,7 +189,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_big_json')
-    # @task(3)
+    @task(3)
     def add_static_big_json(self):
         json_doc = json.dumps(bigObj)
         self.client.post('/api/v1/redisjson',
@@ -245,7 +239,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_simple_hash')
-    # @task(3)
+    @task(3)
     def add_static_simple_hash(self):
         json_doc = json.dumps(smallObj)
         self.client.post('/api/v1/redisjson',
@@ -256,7 +250,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_simple_hash')
-    # @task(3)
+    @task(3)
     def add_random_simple_hash(self):
         json_doc = {
             'id':   "simpleHash:" + str(uuid.uuid4()),
@@ -275,7 +269,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_big_hash')
-    # @task(3)
+    @task(3)
     def add_static_big_json_hash(self):
         json_doc = json.dumps(bigObj)
         self.client.post('/api/v1/redisjson',
@@ -286,7 +280,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_big_hash')
-    # @task(3)
+    @task(3)
     def add_random_big_hash(self):
         nested_json = {
             'id': "advancedUserHash:" + str(uuid.uuid4()),
@@ -328,12 +322,18 @@ class testOnPost(TaskSet):
 
 class testOnGet(TaskSet):
     """ task functions to be used in the TaskSet """
-
-    @tag('getJSONByKey')
+    @tag('getJsonByKey')
     @task(3)
     def get_json_by_key(self):
         id = get_id('basicUser')
         self.client.get('/api/v1/doc/{}'.format(random.choice(id)), timeout=50, name='/api/v1/getJsonByKey')
+        # self.client.cookies.clear()
+
+    @tag('getListOfFieldsByKey')
+    @task(3)
+    def get_list_of_fields_by_key(self):
+        id = get_id('advancedUser')
+        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
         # self.client.cookies.clear()
 
 
@@ -344,21 +344,18 @@ class testOnGet(TaskSet):
         self.client.get('/api/v1/hash/{}'.format(random.choice(id)), timeout=50, name='/api/v1/getHashByKey')
         # self.client.cookies.clear()
 
-
     @tag('getField')
-    @task(3)
+    #@task(3)
     def get_json_by_key_and_field(self):
         id= get_id('basicUser')
         self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=50, name='/api/v1/getValueByKeyAndFields')
         # self.client.cookies.clear()
 
-    @tag('getListOfFieldsByKey')
-    @task(3)
-    def get_list_of_fields_by_key(self):
-        id = get_id('advancedUser')
-        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
-        # self.client.cookies.clear()
-
+    @tag('simpleTest')
+    @task(2)
+    def simpleTest(self):
+        self.client.get('/api/v1/hash/get',
+            name='/api/v1/get')
 
 class testOnPut(TaskSet):
     @tag('updateField_json')
@@ -391,6 +388,7 @@ class testOnPut(TaskSet):
             timeout=50,
             name='/api/v1/update_field_nested')
 
+
     @tag('appendString')
     # @task(1)
     def append_string(self):
@@ -408,7 +406,7 @@ class testOnPut(TaskSet):
         # self.client.cookies.clear()
 
     @tag('NumIncrby')
-    # @task(1)
+    @task(1)
     def num_incr_by(self):
         id = get_id('basicUser')
         fieldNum = {
@@ -424,7 +422,7 @@ class testOnPut(TaskSet):
         # self.client.cookies.clear()
 
     @tag('NumMultiby')
-    # @task(1)
+    @task(1)
     def num_multi_by(self):
         id = get_id('basicUser')
         fieldNum = {
@@ -439,12 +437,21 @@ class testOnPut(TaskSet):
             name='/api/v1/numMultiBy')
         # self.client.cookies.clear()
 
+
+class simpleTest(TaskSet):
+    @tag('simpleTest')
+    @task(2)
+    def simpleTest(self):
+        self.client.get('/api/v1/hash/get',
+            name='/api/v1/get')
+
+
 """ Generate the load """
 
 class GenerateLoad(FastHttpUser):
-    connection_timeout=100
-    network_timeout=50
-    tasks = [testOnPost, testOnPut]
+    # connection_timeout=100
+    # network_timeout=50
+    tasks = [testOnGet]
     # min_wait = 5000
     # max_wait = 20000
 

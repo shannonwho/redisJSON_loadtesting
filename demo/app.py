@@ -31,18 +31,6 @@ app.logger.debug('REDIS_HOST: {}'.format(app.config['REDIS_HOST']))
 app.logger.debug('REDIS_PORT: {}'.format(app.config['REDIS_PORT']))
 
 
-"""
-added this to make sure there is no other caching happening (was during a debug session may not be needed)
-"""
-@app.after_request
-def set_response_headers(response):
-    if request.path.startswith('/api/'):
-        app.logger.debug('API request remove cache headers')
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
-    return response
-
 """ 
 VIEWS
 Each view path pulls from it's associated template.  The main.html is a parent template 
@@ -52,27 +40,14 @@ Javascript files are associated by naming convention: home.html --> home.js
 # Test a basic page route here: 
 @app.route('/', methods=['GET'])
 def viewHome():
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    app.logger.debug('before render')
+    # app.logger.info(
+    #     'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     return render_template('home.html', environment=app.config['ENV'])
 
 # Test basic example page: 
 @app.route('/examples', methods=['GET'])
 def viewExamples():
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    full_json = []
-    keys = services.scan_keys("simpleHash", cnt=10)
-
-    app.logger.debug(keys)
-    if 'error' in keys:
-        keys = []
-    if keys is None:
-        keys = []
-    for i in range(len(keys)):
-        full_json.append(services.getJsonByKey(keys[i]))
-    return render_template('examples.html', keys= keys, examples=full_json)
+    return render_template('examples.html')
 
 """
 API using RedisJSON
@@ -107,7 +82,7 @@ def api_get_keys():
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
 
-#get a JSON document by its ID
+#get a JSON document by its key 
 @app.route('/api/v1/doc/<id>', methods=['GET'])
 def api_get_example(id):
     app.logger.info(
@@ -116,12 +91,8 @@ def api_get_example(id):
     json_doc = services.getJsonByKey(id)
 
     try:
-        if 'error' not in json_doc:
-            return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
+        return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
                             mimetype='application/json', status=200)
-        else:
-            return Response(json.dumps({'error': json_doc}, indent=4, default=str), mimetype='application/json',
-                            status=400)
     except Exception:
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
@@ -137,12 +108,8 @@ def api_get_fields(id):
     #show all the fields of a key with the path
     fields = services.scan_fields(id,path)
     try:
-        if 'error' not in fields:
-            return Response(json.dumps({'status': 'ok', 'examples': fields}, indent=4, default=str),
-                            mimetype='application/json', status=200)
-        else:
-            return Response(json.dumps({'error': fields}, indent=4, default=str), mimetype='application/json',
-                            status=400)
+        return Response(json.dumps({'status': 'ok', 'examples': fields}, indent=4, default=str),
+                        mimetype='application/json', status=200)
     except Exception:
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
@@ -157,12 +124,8 @@ def api_get_subdoc(id,field):
     #Get JSON document by ID
     json_doc = services.getSubdoc(id,field)
     try:
-        if 'error' not in json_doc:
-            return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
+        return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
                             mimetype='application/json', status=200)
-        else:
-            return Response(json.dumps({'error': json_doc}, indent=4, default=str), mimetype='application/json',
-                            status=400)
     except Exception:
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
@@ -182,6 +145,7 @@ def api_add_example():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     data = request.get_json(force=True)
+    app.logger.info ("add_json {}".format(data))
     add_json = services.add_json(**data)
 
     try:
@@ -210,7 +174,6 @@ def api_update_field():
         'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     
     data = request.get_json(force=True)
-    app.logger.info('UPDATE request body: {}'.format(data))
 
     if data:
         key = data.get('key', None)
@@ -327,8 +290,6 @@ def api_num_multiby():
                         status=400)
 
 
-
-
 """
 API using Redis's Hash data structure
 """
@@ -378,34 +339,9 @@ def api_get_example_hash(id):
 
 
 #Update a value to a key on Hash
-@app.route('/api/v1/hash/update', methods=['PUT'])
+@app.route('/api/v1/hash/get', methods=['GET'])
 def api_update_field_hash():
-    app.logger.info(
-        'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    
-    data = request.get_json(force=True)
-    app.logger.info('HASH-UPDATE request body: {}'.format(data))
-
-    if data:
-        key = data.get('key', None)
-        field = data.get('field', None)
-        str = data.get('str', None)
-        #call numIncrBy function
-        appenStr = services.updateField_hash(key,field,str)
-    else:
-        result = {'error': 'invalid request'}
-
-    try:
-        if 'error' not in data:
-            return Response(json.dumps({'status':'ok', 'json': appenStr}, indent=4, default=str),
-                            mimetype='application/json', status=200)
-        else:
-            return Response(json.dumps({'error': appenStr}, indent=4, default=str), mimetype='application/json',
-                            status=400)
-    except Exception:
-        app.logger.warn('request failed:', exc_info=True)
-        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
-                        status=400)
+    return Response("TEST!")
 
 
 #Update a field in json doc on HASH

@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-6">
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
-                <button id="get-examples">GET /api/v1/keys by key pattern</button><input id="get-examples-pattern" value="" />
+                <button id="get-examples">GET /api/v1/keys by key pattern </button><input id="get-examples-pattern" value="" />
                 <div><h5 class="text-light-50">Response Time:</h5><span id="get-examples-response-time"></span> MS</div>
 
                 <div id="get-examples-response-container w-100" class="overflow-auto" style="height:12em;">
@@ -38,15 +38,6 @@
         <div class="col-6">
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
                 <button id="post-example">POST /api/v1/redisjson </button>
-                    <!-- <div class="input-group mb-3">
-                        <label for="put-product-name" class="col-sm-2 col-form-label text-success">Name:</label>
-                        <div class="col-sm-7">
-                            <input class="w-100" id="put-product-name" value="This is a new name" />
-                        </div>
-                        <div class="col-sm-3">
-                            <small for="put-product-name" id="put-product-name-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid name.</small>
-                        </div>
-                    </div> -->
                     <div class="input-group mb-3">
                         <label for="post-example-id" class="col-sm-2 col-form-label text-success">Id</label>
                         <div class="col-sm-7">
@@ -65,15 +56,24 @@
                             <small for="post-example-name" id="post-example-name-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid name.</small>
                         </div>
                     </div>
-                    <!-- <div class="input-group mb-3">
+                    <div class="input-group mb-3">
+                        <label for="post-example-age" class="col-sm-2 col-form-label text-success">Age</label>
+                        <div class="col-sm-7">
+                            <input id="post-example-age" placeholder="21" />
+                        </div>
+                        <div class="col-sm-3">
+                            <small for="post-example-age" id="post-example-age-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid Age.</small>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
                         <label for="post-example-location" class="col-sm-2 col-form-label text-success">Location</label>
                         <div class="col-sm-7">
-                            <input class="w-100" id="post-example-location" placeholder="Moutain View, CA" class="form-control is-valid" />
+                            <input id="post-example-location" placeholder="California" />
                         </div>
                         <div class="col-sm-3">
                             <small for="post-example-location" id="post-example-location-error" class="col-sm-2 col-form-label text-danger invisible">Must be a valid location.</small>
                         </div>
-                    </div> -->
+                    </div>
                 <div> RedisJSON:
                     <code id="put-product-sql-code"></code>
                 </div>
@@ -83,7 +83,24 @@
                     <h5 class="text-light-50">Response Body:</h5>
                     <pre id="post-example-response-body" style="width:100%;white-space: pre-wrap;"></pre>
                     <!-- <pre id="get-example-names-response-body" style="width:100%;white-space: pre-wrap;"></pre> -->
+                </div>
+            </div>
+            <div class="container-fluid mb-2 mr-2 p-3 bg-light">
+                <button id="update-json">UPDATE /api/v1/redisjson/update</button>
+                <div class="input-group mb-3">
+                    <input id="update-json-key" value="Keys" />
+                </div>
+                <div class="input-group mb-3">
+                    <input id="update-json-field" value="name, location, address..." />
+                </div>
+                <div class="input-group mb-3">
+                    <input id="update-json-value" value="any value will do..." />
+                </div>
+                <div><h5 class="text-light-50">Response Time:</h5><span id="update-json-response-time"></span> MS</div>
 
+                <div id="update-json-response-container" class="overflow-auto" style="width:100%;height:12em;">
+                    <h5 class="text-light-50">Response Body:</h5>
+                    <pre id="update-json-response-body" style="width:100%;white-space: pre-wrap;"></pre>
                 </div>
             </div>
         </div>

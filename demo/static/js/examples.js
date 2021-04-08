@@ -2,9 +2,8 @@ $(document).ready(function(){
     $('#get-examples').click( ()=>{getExamples()})
     $('#get-example').click( ()=>{getExample()});
     $('#get-example-names').click( ()=>{getExampleNames()});
-    // $('#post-example').click( ()=>{postExample()});
     $('#post-example').click( ()=> {postExample()});
-
+    $('#update-json').clic( ()=> {updateJSON()});
 });
 
 //get a list of keys based on the key pattern (similar to SCAN)
@@ -62,16 +61,19 @@ async function postExample() {
     $('#post-example-location-error').addClass('invisible');
     let realID = $('#post-example-id').val();
     let name = $('#post-example-name').val();
+    let age = $('#post-example-age').val();
     let location = $('#post-example-location').val();
     let idPass = realID !== (null || '')
+    let agePass = age !==0
+    let locationPass = location.length < 100
     let namePass = name.length < 1000 && name !== (null || '');
-    if (namePass && idPass){
+    if (namePass && idPass && agePass && locationPass){
         try {
             const response = await axios({
                 method: 'post',
                 url: '/api/v1/redisjson',
                 headers: {'Content-Type': 'application/json' },
-                data: {id:realID, name:name}
+                data: {id:realID, name:name,age:age,location:location}
             });
 
             $('#post-example-response-time').html(response.duration.toString());
@@ -80,4 +82,28 @@ async function postExample() {
             console.error(error);
         }
     }
+}
+
+async function updateJSON() {
+    console.log("UPDATE JSON")
+    $('#update-json-response-time').html('');
+    $('#update-json-response-body').html('');
+    const key= $('#update-json-key').val();
+    const field = $('#update-json-field').val();
+    const value = $('#update-json-value').val();
+
+    try {
+        const response = await axios({
+            method: 'put',
+            url: '/api/v1/redisjson/update',
+            headers: {'Content-Type': 'application/json' },
+            data: {key:key, field:field, str:value}
+        });
+
+        $('#update-json-response-time').html(response.duration.toString());
+        $('#update-json-response-body').html(JSON.stringify(response.data, null, "\t" ) );
+    } catch (error) {
+        console.error(error);
+    }
+
 }

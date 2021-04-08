@@ -31,7 +31,7 @@ services:
      - ENV=local
     volumes:
       - .:/test
-    entrypoint: locust --web-host=0.0.0.0 --host=http://app:5000 --master --tags addSimpleJSON
+    entrypoint: locust --host=http://app:5000 --master
     env_file: 
       - local_conf/locust.conf
     depends_on:

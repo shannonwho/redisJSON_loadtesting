@@ -24,8 +24,7 @@ def scan_keys(pattern,cnt):
     try:
         cur, keys  = rc.connection.scan(cursor=0,match=pattern+'*',count=10)
         result.extend(keys)
-        
-        print("DEBUG scan_keys cur {}, keys {}; result {}".format(cur,keys, json.dumps(result)))
+        # print("DEBUG scan_keys cur {}, keys {}; result {}".format(cur,keys, json.dumps(result)))
         return result
     except Exception as e:
         return {'error':str(e)}
@@ -41,22 +40,9 @@ def scan_fields(key, p):
 
 def add_json(**kwargs):
     #restrict to the selected fields 
-    # allowed_fields = examples_reference['fields'].split(',')
-    #create a python obj(dict) first
-    new_obj = {}
-    id_template = 'simple:' + str(uuid.uuid4())
-    for key,value in kwargs.items():
-        # if key in allowed_fields:
-            new_obj[key] = value
-            
-    id = new_obj['id'] if new_obj['id'] else id_template
-    
-    # print('DEBUG SERVICE {}'.format(json.dumps(new_obj)))
-
     try:
-        rc.connection.jsonset(id, rc.Path.rootPath(), new_obj)
-        return json.dumps(new_obj)
-
+        rc.connection.jsonset(kwargs['id'], rc.Path.rootPath(), kwargs)
+        return json.dumps(kwargs)
     except Exception as e:
         return {'error':str(e)}
 
@@ -87,7 +73,8 @@ def getSubdoc(id, field):
 def updateField(key, field, str):
     try:
         rc.connection.jsonset(name=key, path='.'+field, obj=str, xx=True)
-        return rc.connection.jsonget(key)
+        return key
+        # return rc.connection.jsonget(key)
     except Exception as e:
         return {'error': str(e)}
 

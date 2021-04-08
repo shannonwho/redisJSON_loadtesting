@@ -84,17 +84,3 @@ bigObj = {
         "\/\\\"\uCAFE\uBABE\uAB98\uFCDE\ubcda\uef4A\b\f\n\r\t`1~!@#$%^&*()_+-=[]{}|;:',./<>?"
 : "A key can be any string"
     }
-
-
-str_data = 'normal string'
-int_data = 1
-float_data = 1.50
-list_data = [str_data, int_data, float_data]
-nested_list = [int_data, float_data, list_data]
-dictionary = {
-'int': int_data,
-'str': str_data,
-'float': float_data,
-'list': list_data,
-'nested list': nested_list
-}
