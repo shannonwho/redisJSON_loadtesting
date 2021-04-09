@@ -154,7 +154,8 @@ def get_id(pattern):
         return {'error':str(e)}
 
 fields = ['id','name','address','location']
-
+BasicUserTestSet = get_id('basicUserJson')
+AdvancedUserTestSet = get_id('advancedUserJson')
 
 """ Build the TaskSet """
 class testOnPost(TaskSet):
@@ -173,7 +174,7 @@ class testOnPost(TaskSet):
     @task(3)
     def add_random_small_json(self):
         json_doc = {
-            'id':   "basicUser:" + str(uuid.uuid4()),
+            'id':   "basicUserJson:" + str(uuid.uuid4()),
             'name': fake.name(),
             'age': fake.random_int(min=0, max=100),
             'location': str(fake.latitude()),
@@ -325,45 +326,33 @@ class testOnGet(TaskSet):
     @tag('getJsonByKey')
     @task(3)
     def get_json_by_key(self):
-        id = get_id('basicUser')
-        self.client.get('/api/v1/doc/{}'.format(random.choice(id)), timeout=50, name='/api/v1/getJsonByKey')
-        # self.client.cookies.clear()
-
-    @tag('getListOfFieldsByKey')
-    @task(3)
-    def get_list_of_fields_by_key(self):
-        id = get_id('advancedUser')
-        self.client.get('/api/v1/fields/{}'.format(random.choice(id)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
-        # self.client.cookies.clear()
-
-
-    @tag('getHashByKey')
-    #@task(3)
-    def get_hash_by_key(self):
-        id = get_id('simpleHash')
-        self.client.get('/api/v1/hash/{}'.format(random.choice(id)), timeout=50, name='/api/v1/getHashByKey')
+        self.client.get('/api/v1/doc/{}'.format(random.choice(AdvancedUserTestSet)), timeout=50, name='/api/v1/getJsonByKey')
         # self.client.cookies.clear()
 
     @tag('getField')
-    #@task(3)
+    # @task(3)
     def get_json_by_key_and_field(self):
-        id= get_id('basicUser')
-        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(id), random.choice(fields)), timeout=50, name='/api/v1/getValueByKeyAndFields')
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(BasicUserTestSet), random.choice(fields)), timeout=50, name='/api/v1/getValueByKeyAndFields')
+        # self.client.cookies.clear()
+
+    @tag('getListOfFieldsByKey')
+    #@task(3)
+    def get_list_of_fields_by_key(self):
+        self.client.get('/api/v1/fields/{}'.format(random.choice(AdvancedUserTestSet)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
         # self.client.cookies.clear()
 
     @tag('simpleTest')
-    @task(2)
+    #@task(2)
     def simpleTest(self):
         self.client.get('/api/v1/hash/get',
             name='/api/v1/get')
 
 class testOnPut(TaskSet):
     @tag('updateField_json')
-    @task(2)
+    #@task(2)
     def update_field(self):
-        id = get_id('advancedUserJson')
         update = {
-            'key': random.choice(id),
+            'key': random.choice(AdvancedUserTestSet),
             'field': 'name',
             'str': 'Albert Z'
         }
@@ -376,9 +365,8 @@ class testOnPut(TaskSet):
     @tag('update_nested_field_json')
     @task(2)
     def update_field_nested(self):
-        id = get_id('advancedUserJson')
         update = {
-            'key': random.choice(id),
+            'key': random.choice(AdvancedUserTestSet),
             'field': 'contract.name',
             'str': 'Redis Lab'
         }
@@ -388,13 +376,11 @@ class testOnPut(TaskSet):
             timeout=50,
             name='/api/v1/update_field_nested')
 
-
     @tag('appendString')
     # @task(1)
     def append_string(self):
-        id = get_id('basicUser')
         append = {
-            'key': random.choice(id),
+            'key': random.choice(AdvancedUserTestSet),
             'field': 'name',
             'str': ' Hu'
         }
@@ -408,9 +394,8 @@ class testOnPut(TaskSet):
     @tag('NumIncrby')
     @task(1)
     def num_incr_by(self):
-        id = get_id('basicUser')
         fieldNum = {
-            'key': random.choice(id),
+            'key': random.choice(BasicUserTestSet),
             'field': 'age',
             'num': random.randint(1,10)
         }
@@ -422,11 +407,10 @@ class testOnPut(TaskSet):
         # self.client.cookies.clear()
 
     @tag('NumMultiby')
-    @task(1)
+    #@task(1)
     def num_multi_by(self):
-        id = get_id('basicUser')
         fieldNum = {
-            'key': random.choice(id),
+            'key': random.choice(BasicUserTestSet),
             'field': 'age',
             'num': random.randint(1,10)
         }
@@ -451,7 +435,7 @@ class simpleTest(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [testOnGet]
+    tasks = [testOnPost]
     # min_wait = 5000
     # max_wait = 20000
 

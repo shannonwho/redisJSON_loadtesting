@@ -15,11 +15,13 @@ activate your virtualenv
 run the docker compose
 ```docker-compose up .```
 
+Update your configuration for Redis: it's located in ./local_conf folder
+
+
 # Overall architecture:
 - REST API Servoces:
-  - connection pooling
-  - RedisJSON 1.7
-  - Redis Hash
+  - RedisJSON 1.0
+  - Gunicorn
 
 - Locust Load testing:
   - Group test set

@@ -58,14 +58,13 @@ API using RedisJSON
 # get a list of keys that's store with RedisJSON with the key pattern
 @app.route('/api/v1/keys', methods=['GET'])
 def api_get_keys():
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    # app.logger.info(
+    #     'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     limit = request.args.get('limit') if request.args.get('limit') else 10
     pattern = request.args.get('pattern') if request.args.get('pattern') else 'basicUser'
 
     #show all the json item 
     keys = services.scan_keys(pattern,cnt=limit)
-    app.logger.info("/api/v1/keys: RESULT - {}".format(json.dumps(keys)))
     full_json = []
     for k in keys:
         full_json.append(services.getJsonByKey(k))
@@ -85,11 +84,10 @@ def api_get_keys():
 #get a JSON document by its key 
 @app.route('/api/v1/doc/<id>', methods=['GET'])
 def api_get_example(id):
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    # app.logger.info(
+    #     'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     #Get JSON document by ID
     json_doc = services.getJsonByKey(id)
-
     try:
         return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
                             mimetype='application/json', status=200)
@@ -99,28 +97,24 @@ def api_get_example(id):
                         status=400)
 
 
-# get a list of keys that's store with RedisJSON 
-@app.route('/api/v1/fields/<id>', methods=['GET'])
-def api_get_fields(id):
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    path = request.args.get('path') if request.args.get('path') else '.'
-    #show all the fields of a key with the path
-    fields = services.scan_fields(id,path)
-    try:
-        return Response(json.dumps({'status': 'ok', 'examples': fields}, indent=4, default=str),
-                        mimetype='application/json', status=200)
-    except Exception:
-        app.logger.warn('request failed:', exc_info=True)
-        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
-                        status=400)
+# # get a list of keys that's store with RedisJSON 
+# @app.route('/api/v1/fields/<id>', methods=['GET'])
+# def api_get_fields(id):
+#     path = request.args.get('path') if request.args.get('path') else '.'
+#     #show all the fields of a key with the path
+#     fields = services.scan_fields(id,path)
+#     try:
+#         return Response(json.dumps({'status': 'ok', 'examples': fields}, indent=4, default=str),
+#                         mimetype='application/json', status=200)
+#     except Exception:
+#         app.logger.warn('request failed:', exc_info=True)
+#         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+#                         status=400)
 
 
 #get a subdocument of a JSON document
 @app.route('/api/v1/subdoc/<id>/<field>', methods=['GET'])
 def api_get_subdoc(id,field):
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     #Get JSON document by ID
     json_doc = services.getSubdoc(id,field)
     try:
@@ -130,7 +124,6 @@ def api_get_subdoc(id,field):
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
-
 
 
 """
@@ -145,7 +138,6 @@ def api_add_example():
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     data = request.get_json(force=True)
-    app.logger.info ("add_json {}".format(data))
     add_json = services.add_json(**data)
 
     try:
@@ -170,9 +162,6 @@ API using RedisJSON
 #Update a single field of JSON 
 @app.route('/api/v1/redisjson/update', methods=['PUT'])
 def api_update_field():
-    app.logger.info(
-        'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    
     data = request.get_json(force=True)
 
     if data:
@@ -205,8 +194,6 @@ def api_append_field():
         'APPEND: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     
     data = request.get_json(force=True)
-    app.logger.info('APPEND request body: {}'.format(data))
-
     if data:
         key = data.get('key', None)
         field = data.get('field', None)

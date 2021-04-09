@@ -6,6 +6,7 @@
         <div class="col-6">
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
                 <button id="get-examples">GET /api/v1/keys by key pattern </button><input id="get-examples-pattern" value="" />
+                <div><code>SCAN [CURSOR] MATCH [KEY PATTERN] </code></div>
                 <div><h5 class="text-light-50">Response Time:</h5><span id="get-examples-response-time"></span> MS</div>
 
                 <div id="get-examples-response-container w-100" class="overflow-auto" style="height:12em;">
@@ -15,6 +16,7 @@
             </div>
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
                 <button id="get-example">GET /api/v1/doc/ by ID</button><input id="get-example-id" value="" />
+                <div><code>JSON.GET [KEY]</code></div>
                 <div><h5 class="text-light-50">Response Time:</h5><span id="get-example-response-time"></span> MS</div>
 
                 <div id="get-example-response-container" class="overflow-auto" style="width:100%;height:12em;">
@@ -24,6 +26,7 @@
             </div>
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
                 <button id="get-example-names">GET /api/v1/subdoc/key/field/</button>
+                <div><code>JSON.GET [KEY] .[FIELD PATH]</code></div>
                 <input id="get-example-name" value="simple:/ nested:" />
                 <input id="get-example-field" value="name, location, address..." />
                 <div><h5 class="text-light-50">Response Time:</h5><span id="get-example-names-response-time"></span> MS</div>
@@ -38,6 +41,7 @@
         <div class="col-6">
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
                 <button id="post-example">POST /api/v1/redisjson </button>
+                    <div><code>JSON.SET [KEY] [JSON STRING]</code></div>
                     <div class="input-group mb-3">
                         <label for="post-example-id" class="col-sm-2 col-form-label text-success">Id</label>
                         <div class="col-sm-7">
@@ -86,7 +90,8 @@
                 </div>
             </div>
             <div class="container-fluid mb-2 mr-2 p-3 bg-light">
-                <button id="update-json">UPDATE /api/v1/redisjson/update</button>
+                <button id="update-json">PUT /api/v1/redisjson/update</button>
+                <div><code>JSON.SET [KEY] [.FIELD] [NEW VALUE]</code>
                 <div class="input-group mb-3">
                     <input id="update-json-key" value="Keys" />
                 </div>
@@ -103,6 +108,27 @@
                     <pre id="update-json-response-body" style="width:100%;white-space: pre-wrap;"></pre>
                 </div>
             </div>
+            <div class="container-fluid mb-2 mr-2 p-3 bg-light">
+                <button id="append-json">PUT /api/v1/redisjson/append</button>
+                <div><code>JSON.STRAPPEND [KEY] [.FIELD PATH] [NEW JSON STRING VALUE]</code>
+                <div class="input-group mb-3">
+                    <input id="append-json-key" value="Keys" />
+                </div>
+                <div class="input-group mb-3">
+                    <input id="append-json-field" value="name, location, address..." />
+                </div>
+                <div class="input-group mb-3">
+                    <input id="append-json-value" value="any value will do..." />
+                </div>
+                <div><h5 class="text-light-50">Response Time:</h5><span id="append-json-response-time"></span> MS</div>
+
+                <div id="append-json-response-container" class="overflow-auto" style="width:100%;height:12em;">
+                    <h5 class="text-light-50">Response Body:</h5>
+                    <pre id="append-json-response-body" style="width:100%;white-space: pre-wrap;"></pre>
+                </div>
+            </div>
+
+
         </div>
     </div>
 </div>

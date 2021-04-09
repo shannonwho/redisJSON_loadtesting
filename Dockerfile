@@ -12,9 +12,8 @@ COPY . /app
 # COPY package.json pip3.lock ./
 RUN pip3 install -r requirements.txt
 ADD . /app/
-ENTRYPOINT [ "python3" ]
-CMD [ "./demo/app.py" ]
-
+EXPOSE 5000
+CMD gunicorn --chdir ./demo --workers 4 --threads 3 -b 0.0.0.0:5000 'demo.app:app'
 
 
 FROM locustio/locust AS test

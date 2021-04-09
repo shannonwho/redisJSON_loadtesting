@@ -6,3 +6,5 @@ redis
 rejson
 faker
 requests
+gunicorn
+uwsgi

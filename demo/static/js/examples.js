@@ -3,7 +3,7 @@ $(document).ready(function(){
     $('#get-example').click( ()=>{getExample()});
     $('#get-example-names').click( ()=>{getExampleNames()});
     $('#post-example').click( ()=> {postExample()});
-    $('#update-json').clic( ()=> {updateJSON()});
+    $('#update-json').click( ()=> {updateJSON()});
 });
 
 //get a list of keys based on the key pattern (similar to SCAN)
