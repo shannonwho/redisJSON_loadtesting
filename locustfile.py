@@ -17,7 +17,7 @@ import random
 import string
 import requests
 from rejson import Client, Path
-from demo.utils.sampleJSON import smallObj,bigObj
+from demo.utils.sampleJSON import smallObj,bigObj,highlyNestedObj
 from faker import Faker
 from faker.providers import company
 from flask import jsonify
@@ -141,7 +141,7 @@ def locust_init(environment, runner, **kwargs):
         REGISTRY.register(LocustPrometheusCollector(environment, runner))
 
 
-"""Functions for tasks to be used in the Tasl set"""
+"""Functions for tasks to be used in the Task set"""
 
 def get_id(pattern):
     #use scan on the key level 
@@ -162,7 +162,7 @@ class testOnPost(TaskSet):
     @tag('add_static_small_json')
     @task(3)
     def add_static_small_json(self):
-        json_doc = json.dumps(smallObj)
+        json_doc = json.dumps(bigObj)
         self.client.post('/api/v1/redisjson',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
@@ -240,7 +240,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_simple_hash')
-    @task(3)
+    #@task(3)
     def add_static_simple_hash(self):
         json_doc = json.dumps(smallObj)
         self.client.post('/api/v1/redisjson',
@@ -251,7 +251,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_simple_hash')
-    @task(3)
+    #@task(3)
     def add_random_simple_hash(self):
         json_doc = {
             'id':   "simpleHash:" + str(uuid.uuid4()),
@@ -270,7 +270,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_big_hash')
-    @task(3)
+    #@task(3)
     def add_static_big_json_hash(self):
         json_doc = json.dumps(bigObj)
         self.client.post('/api/v1/redisjson',
@@ -281,7 +281,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_random_big_hash')
-    @task(3)
+    #@task(3)
     def add_random_big_hash(self):
         nested_json = {
             'id': "advancedUserHash:" + str(uuid.uuid4()),

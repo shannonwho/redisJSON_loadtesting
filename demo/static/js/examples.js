@@ -4,6 +4,7 @@ $(document).ready(function(){
     $('#get-example-names').click( ()=>{getExampleNames()});
     $('#post-example').click( ()=> {postExample()});
     $('#update-json').click( ()=> {updateJSON()});
+    $('#append-json').click( ()=> {appendJSON()});
 });
 
 //get a list of keys based on the key pattern (similar to SCAN)
@@ -102,6 +103,29 @@ async function updateJSON() {
 
         $('#update-json-response-time').html(response.duration.toString());
         $('#update-json-response-body').html(JSON.stringify(response.data, null, "\t" ) );
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function appendJSON() {
+    console.log("APPEND JSON")
+    $('#append-json-response-time').html('');
+    $('#append-json-response-body').html('');
+    const key= $('#append-json-key').val();
+    const field = $('#append-json-field').val();
+    const value = $('#append-json-value').val();
+
+    try {
+        const response = await axios({
+            method: 'put',
+            url: '/api/v1/redisjson/append',
+            headers: {'Content-Type': 'application/json' },
+            data: {key:key, field:field, str:value}
+        });
+
+        $('#append-json-response-time').html(response.duration.toString());
+        $('#append-json-response-body').html(JSON.stringify(response.data, null, "\t" ) );
     } catch (error) {
         console.error(error);
     }
