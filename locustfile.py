@@ -17,7 +17,7 @@ import random
 import string
 import requests
 from rejson import Client, Path
-from demo.utils.sampleJSON import smallObj,bigObj,highlyNestedObj
+from demo.utils.sampleJSON import smallObj,bigObj,hugeObj,hugeObjString
 from faker import Faker
 from faker.providers import company
 from flask import jsonify
@@ -159,19 +159,19 @@ AdvancedUserTestSet = get_id('advancedUserJson')
 
 """ Build the TaskSet """
 class testOnPost(TaskSet):
-    @tag('add_static_small_json')
+    @tag('add_static_huge_string')
     @task(3)
-    def add_static_small_json(self):
-        json_doc = json.dumps(bigObj)
-        self.client.post('/api/v1/redisjson',
+    def add_static_huge_string(self):
+        json_doc = json.dumps(hugeObjString)
+        self.client.post('/api/v1/string',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/add_static_small_json')
-        # self.client.cookies.clear()
+            name='/api/v1/add_static_huge_string')
+
 
     @tag('add_random_small_json')
-    @task(3)
+    #@task(3)
     def add_random_small_json(self):
         json_doc = {
             'id':   "basicUserJson:" + str(uuid.uuid4()),
@@ -190,7 +190,7 @@ class testOnPost(TaskSet):
         # self.client.cookies.clear()
 
     @tag('add_static_big_json')
-    @task(3)
+    #@task(3)
     def add_static_big_json(self):
         json_doc = json.dumps(bigObj)
         self.client.post('/api/v1/redisjson',
@@ -198,6 +198,18 @@ class testOnPost(TaskSet):
             headers={'Content-Type': 'application/json'},
             timeout=50,
             name='/api/v1/add_static_big_json')
+        # self.client.cookies.clear()
+
+
+    @tag('add_static_huge_json')
+    @task(3)
+    def add_static_huge_json(self):
+        json_doc = json.dumps(hugeObj)
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/add_static_huge_json')
         # self.client.cookies.clear()
 
     @tag('add_random_big_json')
@@ -239,17 +251,6 @@ class testOnPost(TaskSet):
             name='/api/v1/add_random_big_json')
         # self.client.cookies.clear()
 
-    @tag('add_static_simple_hash')
-    #@task(3)
-    def add_static_simple_hash(self):
-        json_doc = json.dumps(smallObj)
-        self.client.post('/api/v1/redisjson',
-            data=json_doc,
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/add_static_simple_hash')
-        # self.client.cookies.clear()
-
     @tag('add_random_simple_hash')
     #@task(3)
     def add_random_simple_hash(self):
@@ -267,17 +268,6 @@ class testOnPost(TaskSet):
             headers={'Content-Type': 'application/json'},
             timeout=50,
             name='/api/v1/add_random_simple_hash')
-        # self.client.cookies.clear()
-
-    @tag('add_static_big_hash')
-    #@task(3)
-    def add_static_big_json_hash(self):
-        json_doc = json.dumps(bigObj)
-        self.client.post('/api/v1/redisjson',
-            data=json_doc,
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/add_static_big_hash')
         # self.client.cookies.clear()
 
     @tag('add_random_big_hash')

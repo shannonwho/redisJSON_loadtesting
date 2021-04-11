@@ -331,6 +331,33 @@ def api_update_field_hash():
     return Response("TEST!")
 
 
+"""
+API using Redis String
+- POST
+"""
+
+@app.route('/api/v1/string', methods=['POST'])
+def api_post_string():
+    data = request.get_json(force=True)
+    # app.logger.info('POST - String - data {}'.format(json.dumps(data)))
+
+    add_json_string = services.add_string(**data)
+
+    try:
+        if 'error' not in add_json_string:
+            return Response(json.dumps({'status': 'ok', 'json': add_json_string}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': "add_json"}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+
+
+
 #Update a field in json doc on HASH
 
 if __name__ == '__main__':
