@@ -17,7 +17,7 @@ import random
 import string
 import requests
 from rejson import Client, Path
-from demo.utils.sampleJSON import smallObj,bigObj,hugeObj,hugeObjString
+from demo.utils.sampleJSON import smallObj,bigObj,hugeObj
 from faker import Faker
 from faker.providers import company
 from flask import jsonify
@@ -31,7 +31,7 @@ import uuid
 
 #pull values from env vars
 environment = os.environ['ENV']
-req_timeout_value = int(os.environ['LOAD_GEN_REQUEST_TIMEOUT']) if os.environ['LOAD_GEN_REQUEST_TIMEOUT'] else 50
+# req_timeout_value = int(os.environ['LOAD_GEN_REQUEST_TIMEOUT']) if os.environ['LOAD_GEN_REQUEST_TIMEOUT'] else 50
 api_endpoint = 'http://app:5000/api/v1/'
 
 # https://faker.readthedocs.io/en/master/
@@ -310,9 +310,20 @@ class testOnRandomJson(TaskSet):
             name='/api/v1/add_static_big_json')
         # self.client.cookies.clear()
 
-class testOnHugeJson(TaskSet):
+class testOnHugeJsonPost(TaskSet):
     @tag('add_huge_json')
     @task(3)
+    def add_huge_json(self):
+        json_doc = json.dumps(hugeObj)
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/add_static_huge_json')
+    
+class testOnHugeJson(TaskSet):
+    @tag('add_huge_json')
+    #@task(3)
     def add_huge_json(self):
         json_doc = json.dumps(hugeObj)
         self.client.post('/api/v1/redisjson',
@@ -332,7 +343,7 @@ class testOnHugeJson(TaskSet):
     @tag('get_huge_json_by_key_and_field')
     @task(2)
     def get_huge_json_by_key_and_field(self):
-        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(fields)), timeout=50, name='/api/v1/get_huge_json_by_key_and_field')
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_huge_json_by_key_and_field')
         # self.client.cookies.clear()
 
     @tag('updateField_huge_json')
@@ -472,7 +483,7 @@ class simpleTest(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [testOnString,testOnHugeJson]
+    tasks = [testOnHugeJson]
     # min_wait = 5000
     # max_wait = 20000
 
