@@ -333,7 +333,6 @@ def api_update_field_hash():
 
 """
 API using Redis String
-- POST
 """
 
 @app.route('/api/v1/string', methods=['POST'])
@@ -354,7 +353,26 @@ def api_post_string():
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
+@app.route('/api/v1/string/<id>', methods=['GET'])
+def api_get_string(id):
+    app.logger.info(
+        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    #  pattern = request.args.get('pattern') if request.args.get('pattern') else 'simpleHash'
 
+    #show all the json item 
+    json_doc = services.get_string(id)
+
+    try:
+        if 'error' not in json_doc:
+            return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': json_doc}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
 
 
 

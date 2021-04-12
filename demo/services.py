@@ -41,11 +41,12 @@ def scan_fields(key, p):
 def add_json(**kwargs):
     #restrict to the selected fields 
     id = str(uuid.uuid4())
-    key= kwargs['id'] if kwargs['id'] else "json:"+id
+    if 'id' not in kwargs.keys():
+        key ='redisJSON:'+id
+    else:
+        key = kwargs['id']
+    # print("DEBUG - ADD-JSON - key {} - json {}".format(key, json.dumps(kwargs)))
     try:
-        print("DEBUG: ADD-JSON {}".format(json.dumps(kwargs)))
-        print("DEBUG: ADD-JSON KEY {}".format(key))
-
         rc.connection.jsonset(key, rc.Path.rootPath(), kwargs)
         return json.dumps(kwargs)
     except Exception as e:
@@ -54,15 +55,18 @@ def add_json(**kwargs):
 def add_string(**kwargs):
     id = str(uuid.uuid4())
     key= "stringJSON:"+id
-
     try:
-        # print("DEBUG: ADD-STRING {}".format(json.dumps(kwargs)))
-        # print("DEBUG: ADD-STRING KEY {}".format(key))
         rc.connection.set(key, json.dumps(kwargs))
         return json.dumps(kwargs)
     except Exception as e:
         return {'error':str(e)}
     
+def get_string(key):
+    try:
+        return rc.connection.get(key)
+    except Exception as e:
+        return {'error': str(e)}
+
 
 #Get a JSON value based on a key 
 def getJsonByKey(key):
