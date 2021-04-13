@@ -307,8 +307,6 @@ def api_add_example_hash():
 def api_get_example_hash(id):
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    #  pattern = request.args.get('pattern') if request.args.get('pattern') else 'simpleHash'
-
     #show all the json item 
     json_doc = services.getjson_hash(id)
 
@@ -353,12 +351,12 @@ def api_post_string():
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
+
+
 @app.route('/api/v1/string/<id>', methods=['GET'])
 def api_get_string(id):
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
-    #  pattern = request.args.get('pattern') if request.args.get('pattern') else 'simpleHash'
-
     #show all the json item 
     json_doc = services.get_string(id)
 
@@ -373,6 +371,67 @@ def api_get_string(id):
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
+
+#TBD
+@app.route('/api/v1/string/<id>/<field>', methods=['GET'])
+def api_get_nested_string(id):
+    app.logger.info(
+        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    #show all the json item 
+    json_doc = services.get_string(id)
+
+    try:
+        if 'error' not in json_doc:
+            return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': json_doc}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+
+@app.route('/api/v1/string/update', methods=['PUT'])
+def api_put_string():
+    app.logger.info(
+        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    # parse PUT request
+    data = request.get_json(force=True)
+
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+        str = data.get('str', None)
+        #call numIncrBy function
+        
+        json_string = services.get_string(key)
+        #deserialized JSON String
+        json_object = json.loads(json_string)
+        #update a field on deserialized JSON
+        json_object[field] = str
+        #replace the old json string
+        json_set = services.add_string(**json_object)
+
+    else:
+        result = {'error': 'invalid request'}
+
+    try:
+        if 'error' not in json_set:
+            return Response(json.dumps({'status':'ok', 'json': json_set}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': json_set}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+
+
+
 
 
 

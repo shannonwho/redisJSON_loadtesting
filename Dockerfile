@@ -13,7 +13,7 @@ COPY . /app
 RUN pip3 install -r requirements.txt
 ADD . /app/
 EXPOSE 5000
-CMD gunicorn --chdir ./demo --workers 6 --threads 3 -b 0.0.0.0:5000 'demo.app:app'
+CMD gunicorn --chdir ./demo --workers 8 --threads 3 -b 0.0.0.0:5000 'demo.app:app'
 
 
 FROM locustio/locust AS test
