@@ -115,9 +115,11 @@ def appendStringToField(key, field, str):
 
 
 #Add an array of JSON
-def addArrayOfJSON(len,**kwargs):
+#def jsonarrappend(self, name, path='.', *args)
+def addArrayOfJSON(key, field,**arr):
     try:
-        rc.connection.jsonarrappend()
+        print('appendArrayToField: key {}, field {}, arr {} '.format(key,field,arr))
+        rc.connection.jsonarrappend(key, '.'+field, arr)
     except Exception as e:
         return {'error':str(e)}
 

@@ -1,7 +1,7 @@
 # Pre-requisites
 python3, pip3, virtualenv, docker, docker-compose
 
-The local deployment needs more than 2GB of memory allocated in Docker preferences (from the system to Docker in general).  Just go into the preferences and make sure there is enough memory.  Otherwise, RS will not be able to create the database.
+The local deployment needs more than 2GB of memory allocated in Docker preferences (from the system to Docker in general).  Just go into the preferences and make sure there is enough memory.  Otherwise, RS will not be able to create the database. 
 
 cloud deployment: gcp credentials file and environment settings
 
@@ -15,12 +15,15 @@ activate your virtualenv
 run the docker compose
 ```docker-compose up .```
 
-Update your configuration for Redis: it's located in ./local_conf folder
+! NOTE ! 
+- Update your DB Endpoint and Locust configuration on ./local_conf folder
+- If you're connecting to Redis Cloud subscription, make sure you have RedisJSON module enabled. 
+- Run the "testOnJSONSet" first to load some data for other test cases.
 
 
 # Overall architecture:
 - REST API Servoces:
-  - RedisJSON 1.0
+  - RedisJSON 1.0 (2.0 is coming soon!)
   - Gunicorn
 
 - Locust Load testing:
@@ -29,12 +32,14 @@ Update your configuration for Redis: it's located in ./local_conf folder
   - Distributed
   - Spawn rate
   
-- Visualization: (This is a super-simple solution that allows us to easily visualize how our application performs on user-end as well as resource-wise.)
+- Visualization: (this is currently commented out)
+  (This is a super-simple solution that allows us to easily visualize how our application performs on user-end as well as resource-wise.)
   - cAdvisor: API container usage monitoring (http://localhost:8080/metrics) 
   - Scrape some customized metrics from Locust.io via Prometheus (http://localhost:8089/metrics)
   - Visualize them all on Grafana (port: 3000)
 
 # The REST API application:
+RedisJSON Python Commands reference page: https://github.com/RedisJSON/redisjson-py/blob/master/API.md 
 
 The REST API is based on RedisJSON module for basic JSON Operations:
 - GET
@@ -42,17 +47,14 @@ The REST API is based on RedisJSON module for basic JSON Operations:
   - Get the value of a field by key and field's name
   - Get the sub-document(nested object) by key and field's name
 - POST
-  - Small size object (200-300Bytes)
     - static fields 
     - Randomly assigned JSON with no subdocument(nested obejct) 
-  - Big size object (1000-2000bytes)
-    - Static fields
-    - Nested JSON with array and subdocument
 - PUT
   - Update a field on the RedisJSON 
   - Append new object/value into an existing JSON object
   - Increase/Multiplying a numeric item in the JSON
 
+Some additional basic APIs based on String and Hash is also available, ready for some comparison testings. 
 
 # The locust Test: 
 
@@ -65,13 +67,11 @@ The REST API is based on RedisJSON module for basic JSON Operations:
 - WRITE complex JSON with array and subdocument 
 - UPDATE a part of JSON objects (multiply/increase)
 - APPEND new items into an array of the JSON objects 
-- ... 
+- ... pretty much any client side actions you would like to mimic 
 
 
 ## Notes on how Locust do distributed tests:
-In general, in Locust, it’s the master who is in charge of things like spawning new locusts (users), collecting and presenting results, running some preparatory tasks, etc. So, it appears like we need some code that runs on the master and will:
-get the data from the disk
-communicate with the workers, to exchange data
+    In general, in Locust, it’s the master who is in charge of things like spawning new locusts (users), collecting and presenting results, running some preparatory tasks, etc. So, it appears like we need some code that runs on the master and will: get the data from the disk communicate with the workers, to exchange data
 
 
 ## Understand Locust statistics
@@ -87,13 +87,14 @@ communicate with the workers, to exchange data
    
 Note: if you want to generate your own load pattern that's outside of simply adjusting user and spawned/second, you can customize it yourself - https://docs.locust.io/en/stable/generating-custom-load-shape.html#generating-a-custom-load-shape 
 
-More details about stats are also avaialble on '/stats/requests'
+More details about stats are also avaialble on '/stats/requests', or refer to the 'LocustPrometheusCollector' function for scrapting those stats out to other timeseries DB
 
-3. You have the options to calculate the number of percentile 
+3. You alos have the options to calculate the number of percentile: get_current_response_time_percentile 
 
-get_current_response_time_percentile 
+
 ## Other components within the Locust tests: 
 - Use faker to generate a user info in json:https://faker.readthedocs.io/en/master/ 
 - Generate different propotion on each test by assigning the weight, eg. @task ( level of the priority)
 - For load testing you might want to make one of the requests execute more often than the others, Locust allows you to do it by defining the weight for each task. 
 - Grafana dashboard for more detailed visualization on all statistics 
+- Gunicorn to optimize flask app performence 

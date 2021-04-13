@@ -5,6 +5,8 @@ $(document).ready(function(){
     $('#post-example').click( ()=> {postExample()});
     $('#update-json').click( ()=> {updateJSON()});
     $('#append-json').click( ()=> {appendJSON()});
+    $('#array-append-json').click( ()=> {appendArrayJSON()});
+
 });
 
 //get a list of keys based on the key pattern (similar to SCAN)
@@ -129,5 +131,29 @@ async function appendJSON() {
     } catch (error) {
         console.error(error);
     }
+}
 
+
+
+async function appendArrayJSON() {
+    console.log("APPEND JSON")
+    $('#array-append-json-response-time').html('');
+    $('#array-append-json-response-body').html('');
+    const key= $('#array-append-json-key').val();
+    const field = $('#array-append-json-field').val();
+    const value = $('#array-append-json-value').val();
+
+    try {
+        const response = await axios({
+            method: 'put',
+            url: '/api/v1/redisjson/append',
+            headers: {'Content-Type': 'application/json' },
+            data: {key:key, field:field, arr:value}
+        });
+
+        $('#array-append-json-response-time').html(response.duration.toString());
+        $('#array-append-json-response-body').html(JSON.stringify(response.data, null, "\t" ) );
+    } catch (error) {
+        console.error(error);
+    }
 }

@@ -32,8 +32,8 @@ import uuid
 #pull values from env vars
 environment = os.environ['ENV']
 # req_timeout_value = int(os.environ['LOAD_GEN_REQUEST_TIMEOUT']) if os.environ['LOAD_GEN_REQUEST_TIMEOUT'] else 50
-api_endpoint = 'http://app:5000/api/v1/'
-# api_endpoint = os.environ['API_ENDPOINT']
+# api_endpoint = 'http://app:5000/api/v1/'
+api_endpoint = os.environ['API_ENDPOINT']
 # https://faker.readthedocs.io/en/master/
 fake = Faker()
 fake.add_provider(company)
@@ -45,6 +45,7 @@ from locust import stats as locust_stats, runners as locust_runners
 from locust import User, task, events
 from prometheus_client import Metric, REGISTRY, exposition
 
+# Function to scrape statistics from Locust and make it avaiable on Prometheus/Grafana
 # This locustfile adds an external web endpoint to the locust master, and makes it serve as a prometheus exporter.
 class LocustPrometheusCollector(object):
     registry = REGISTRY
@@ -159,6 +160,7 @@ AdvancedUserTestSet = get_id('advancedUser')
 hugeObjTestSet = get_id('redisJSON')
 hugeObjFields = ['damage_relations', 'move_damage_class', 'pokemon']
 stringTestSet = get_id('stringJSON')
+nestedFields = ['damage_relations.double_damage_from[0].name', 'names[0].language.name']
 
 """ Build the TaskSet """
 class testOnJSONSet(TaskSet):
@@ -199,7 +201,6 @@ class testOnChangeJSON(TaskSet):
     @tag('updateField_json')
     @task(2)
     def updateField_huge_json(self):
-        print("DEBUG - JSON: {}".format(hugeObjTestSet))
         update = {
             'key': random.choice(hugeObjTestSet),
             'field': 'generation',
@@ -214,7 +215,6 @@ class testOnChangeJSON(TaskSet):
     @tag('updateField_string')
     @task(2)
     def updateField_huge_string(self):
-        print("DEBUG - stringTestSet: {}".format(stringTestSet))
         update = {
             'key': random.choice(stringTestSet),
             'field': 'generation',
@@ -226,10 +226,37 @@ class testOnChangeJSON(TaskSet):
             timeout=50,
             name='/api/v1/updateField_string')
 
+    @tag('update_nested_Field_json')
+    @task(2)
+    def update_nested_Field_json(self):
+        update = {
+            'key': random.choice(hugeObjTestSet),
+            'field': 'damage_relations.double_damage_from[0].name',
+            'str': 'lightening'
+        }
+        self.client.put('/api/v1/redisjson/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/update_nested_Field_json')
+
+    @tag('json_append_string')
+    @task(2)
+    def json_append_string(self):
+        update = {
+            'key': random.choice(hugeObjTestSet),
+            'field': 'damage_relations.double_damage_from[0].name',
+            'str': ' & Jumping'}
+
+        self.client.put('/api/v1/redisjson/append',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/json_append_string')
+
             
     @tag('NumIncrby')
     @task(1)
-    ##json.numincrby hugeObj:5eb32da6-f48c-4263-9a96-013ded607f52 pokemon[0].slot 1
     def hugeObj_num_incr_by(self):
         fieldNum = {
             'key': random.choice(hugeObjTestSet),
@@ -249,12 +276,17 @@ class moreJSONTest(TaskSet):
         self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_json_by_key_and_field')
         # self.client.cookies.clear()
 
+    @tag('get_nested_json_by_key_and_field')
+    @task(2)
+    def get_json(self):
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(nestedFields)), timeout=50, name='/api/v1/get_nested_json')
+        # self.client.cookies.clear()
+
     @tag('get_string_by_key_and_field')
     @task(2)
     def get_string_by_key_and_field(self):
         self.client.get('/api/v1/string/{}/{}'.format(random.choice(stringTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_string_by_key_and_field')
         # self.client.cookies.clear()
-
 
 class testOnRandomGet(TaskSet):
     """ task functions to be used in the TaskSet """
@@ -432,7 +464,7 @@ class simpleTest(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [moreJSONTest]
+    tasks = [testOnJSONSet,testOnChangeJSON]
     # min_wait = 5000
     # max_wait = 20000
 

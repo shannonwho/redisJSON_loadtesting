@@ -187,7 +187,7 @@ def api_update_field():
 
 
 
-#Append a value to a field
+#Append a string value to a field
 @app.route('/api/v1/redisjson/append', methods=['PUT'])
 def api_append_field():
     app.logger.info(
@@ -216,6 +216,33 @@ def api_append_field():
                         status=400)
 
 
+#Append an array to a field
+@app.route('/api/v1/redisjson/appendarray', methods=['PUT'])
+def api_append_array():
+    app.logger.info(
+        'APPEND-ARRAY: method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    
+    data = request.get_json(force=True)
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+        arr = data.get('arr', None)
+        #call numIncrBy function
+        appenArray = services.addArrayOfJSON(key,field,**arr)
+    else:
+        result = {'error': 'invalid request'}
+
+    try:
+        if 'error' not in data:
+            return Response(json.dumps({'status':'ok', 'json': appenArray}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': appenArray}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
 
 
 #Increase a numeric field in a JSON
@@ -321,12 +348,6 @@ def api_get_example_hash(id):
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
-
-
-#Update a value to a key on Hash
-@app.route('/api/v1/hash/get', methods=['GET'])
-def api_update_field_hash():
-    return Response("TEST!")
 
 
 """
