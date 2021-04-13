@@ -57,17 +57,20 @@ The REST API is based on RedisJSON module for basic JSON Operations:
 Some additional basic APIs based on String and Hash is also available, ready for some comparison testings. 
 
 # The locust Test: 
-
+## Sample Data:
+  - 2 Pokemon log object (55k & 15k bytes)
+  - Randomely generated User object (basic/advanced)
 ## Main test cases:
 
-- READ entire JSON objects by key
-- READ specific field within a JSON object by key
-- READ the list of field name under a field/object by the key
-- WRITE simple JSON without array and subdocument 
-- WRITE complex JSON with array and subdocument 
-- UPDATE a part of JSON objects (multiply/increase)
+- GET the whole JSON object by key
+- GET a specific field within a JSON object by key and field name
+- GET the list of field name under a field/object by the key
+- INSERT a simple JSON without array and subdocument 
+- INSERT a complex JSON with array and subdocument 
+- UPDATE a field in a JSON objects 
+- INCREASE/MULTIPLY a numeric field in a JSON Object 
 - APPEND new items into an array of the JSON objects 
-- ... pretty much any client side actions you would like to mimic 
+- ... you can pretty much mimic any available client side actions (API Endpoints)
 
 
 ## Notes on how Locust do distributed tests:

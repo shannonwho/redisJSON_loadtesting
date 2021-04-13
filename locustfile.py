@@ -241,7 +241,7 @@ class testOnChangeJSON(TaskSet):
             name='/api/v1/update_nested_Field_json')
 
     @tag('json_append_string')
-    @task(2)
+    #@task(2)
     def json_append_string(self):
         update = {
             'key': random.choice(hugeObjTestSet),
@@ -276,16 +276,17 @@ class moreJSONTest(TaskSet):
         self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_json_by_key_and_field')
         # self.client.cookies.clear()
 
-    @tag('get_nested_json_by_key_and_field')
-    @task(2)
-    def get_json(self):
-        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(nestedFields)), timeout=50, name='/api/v1/get_nested_json')
-        # self.client.cookies.clear()
-
     @tag('get_string_by_key_and_field')
     @task(2)
     def get_string_by_key_and_field(self):
         self.client.get('/api/v1/string/{}/{}'.format(random.choice(stringTestSet), random.choice(hugeObjFields)), timeout=50, name='/api/v1/get_string_by_key_and_field')
+        # self.client.cookies.clear()
+
+
+    @tag('get_nested_json_by_key_and_field')
+    @task(2)
+    def get_json(self):
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(nestedFields)), timeout=50, name='/api/v1/get_nested_json')
         # self.client.cookies.clear()
 
 class testOnRandomGet(TaskSet):
