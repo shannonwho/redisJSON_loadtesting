@@ -15,7 +15,7 @@ activate your virtualenv
 run the docker compose
 ```docker-compose up .```
 
-! NOTE ! 
+**! NOTE ! **
 - Update your DB Endpoint and Locust configuration on ./local_conf folder
 - If you're connecting to Redis Cloud subscription, make sure you have RedisJSON module enabled. 
 - Run the "testOnJSONSet" first to load some data for other test cases.
@@ -36,7 +36,7 @@ run the docker compose
   (This is a super-simple solution that allows us to easily visualize how our application performs on user-end as well as resource-wise.)
   - cAdvisor: API container usage monitoring (http://localhost:8080/metrics) 
   - Scrape some customized metrics from Locust.io via Prometheus (http://localhost:8089/metrics)
-  - Visualize them all on Grafana (port: 3000)
+  - Visualize them all on Grafana (port: 3000) - template for locust is available on ./grafanaTemplate
 
 # The REST API application:
 RedisJSON Python Commands reference page: https://github.com/RedisJSON/redisjson-py/blob/master/API.md 
