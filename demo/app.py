@@ -372,13 +372,21 @@ def api_get_string(id):
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
 
-#TBD
+#first layer only
 @app.route('/api/v1/string/<id>/<field>', methods=['GET'])
-def api_get_nested_string(id):
+def api_get_nested_string(id,field):
     app.logger.info(
         'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     #show all the json item 
-    json_doc = services.get_string(id)
+    json_string = services.get_string(id)
+    #one layer for now
+    #deserialized JSON String
+    json_object = json.loads(json_string)
+    #update a field on deserialized JSON
+    if json_object:
+        json_doc = json_object[field]
+    else:
+        json_doc = {'error': 'invalid request'}
 
     try:
         if 'error' not in json_doc:

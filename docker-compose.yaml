@@ -51,19 +51,19 @@ services:
     depends_on:
       - app
 
-  cadvisor:
-    image: google/cadvisor:latest
-    container_name: cadvisor
-    ports:
-        - 8080:8080
-    privileged: true
-    volumes:
-        - /:/rootfs:ro
-        - /var/run:/var/run:rw
-        - /sys:/sys:ro
-        - /var/lib/docker/:/var/lib/docker:ro
-    depends_on:
-        - app
+  # cadvisor:
+  #   image: google/cadvisor:latest
+  #   container_name: cadvisor
+  #   ports:
+  #       - 8080:8080
+  #   privileged: true
+  #   volumes:
+  #       - /:/rootfs:ro
+  #       - /var/run:/var/run:rw
+  #       - /sys:/sys:ro
+  #       - /var/lib/docker/:/var/lib/docker:ro
+  #   depends_on:
+  #       - app
 
 
   # prometheus:
