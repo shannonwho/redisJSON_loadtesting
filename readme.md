@@ -74,7 +74,7 @@ Some additional basic APIs based on String and Hash is also available, ready for
 
 
 ## Notes on how Locust do distributed tests:
-    In general, in Locust, it’s the master who is in charge of things like spawning new locusts (users), collecting and presenting results, running some preparatory tasks, etc. So, it appears like we need some code that runs on the master and will: get the data from the disk communicate with the workers, to exchange data
+In general, in Locust, it’s the master who is in charge of things like spawning new locusts (users), collecting and presenting results, running some preparatory tasks, etc. So, it appears like we need some code that runs on the master and will: get the data from the disk communicate with the workers, to exchange data
 
 
 ## Understand Locust statistics

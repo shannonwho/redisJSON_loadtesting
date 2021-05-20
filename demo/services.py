@@ -145,12 +145,21 @@ def numMultiBy(key, field, multiby):
 # Add JSON through HASH:
 def addjson_hash(**kwargs):
     #create a python obj(dict) first
-    new_obj = {}
-    id_template = 'simpleHash:' + str(uuid.uuid4())
-
+    id = str(uuid.uuid4())
+    if 'id' not in kwargs.keys():
+        key ='hash:'+id
+    else:
+        key = kwargs['id']
     try:
-        rc.connection.hmset(id,kwargs)
+        rc.connection.hmset(key,kwargs)
         return json.dumps(kwargs)
+    except Exception as e:
+        return {'error-multiBy': str(e)}
+
+
+def getjson_hash_field(key,field):
+    try:
+        return rc.connection.hget(key,field)
     except Exception as e:
         return {'error-multiBy': str(e)}
 

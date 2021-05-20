@@ -311,8 +311,7 @@ API using Redis's Hash data structure
 #Use Redis's Hash for adding a new JSON 
 @app.route('/api/v1/hash', methods=['POST'])
 def api_add_example_hash():
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    app.logger.info('method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     data = request.get_json(force=True)
     add_json_hash = services.addjson_hash(**data)
     # app.logger.info('add_json_hash{}'.format(data))
@@ -332,8 +331,7 @@ def api_add_example_hash():
 # Use Redis's Hash for getting the JSON document 
 @app.route('/api/v1/hash/<id>', methods=['GET'])
 def api_get_example_hash(id):
-    app.logger.info(
-        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    # app.logger.info('method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     #show all the json item 
     json_doc = services.getjson_hash(id)
 
@@ -343,6 +341,53 @@ def api_get_example_hash(id):
                             mimetype='application/json', status=200)
         else:
             return Response(json.dumps({'error': json_doc}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+#first layer only
+@app.route('/api/v1/hash/<id>/<field>', methods=['GET'])
+def api_get_hash_field(id,field):
+    # app.logger.info('method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+    #show all the json item 
+    fieldValue = services.getjson_hash_field(id,field)
+
+    try:
+        if 'error' not in fieldValue:
+            return Response(json.dumps({'status':'ok', 'json': fieldValue}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': fieldValue}, indent=4, default=str), mimetype='application/json',
+                            status=400)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
+
+
+
+#Update a single field of JSON 
+@app.route('/api/v1/hash/update', methods=['PUT'])
+def api_update_field_hash():
+    data = request.get_json(force=True)
+
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+        str = data.get('str', None)
+        #call numIncrBy function
+        updateStr = services.updateField_hash(key,field,str)
+    else:
+        result = {'error': 'invalid request'}
+
+    try:
+        if 'error' not in data:
+            return Response(json.dumps({'status':'ok', 'json': updateStr}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+        else:
+            return Response(json.dumps({'error': updateStr}, indent=4, default=str), mimetype='application/json',
                             status=400)
     except Exception:
         app.logger.warn('request failed:', exc_info=True)

@@ -154,18 +154,19 @@ def get_id(pattern):
     except Exception as e:
         return {'error':str(e)}
 
-fields = ['id','name','address','location']
+fields = ['age','name','address','location']
 BasicUserTestSet = get_id('basicUser')
 AdvancedUserTestSet = get_id('advancedUser')
 hugeObjTestSet = get_id('redisJSON')
 hugeObjFields = ['damage_relations', 'move_damage_class', 'pokemon']
 stringTestSet = get_id('stringJSON')
+hashTestSet = get_id('hash')
 nestedFields = ['damage_relations.double_damage_from[0].name', 'names[0].language.name']
 
 """ Build the TaskSet """
 class testOnJSONSet(TaskSet):
     @tag('add_string')
-    @task(3)
+    # @task(3)
     def add_static_huge_string(self):
         json_doc = json.dumps(hugeObj)
         self.client.post('/api/v1/string',
@@ -187,7 +188,7 @@ class testOnJSONSet(TaskSet):
 
 class testOnJSONGet(TaskSet):
     @tag('get_string')
-    @task(2)
+    # @task(2)
     def get_static_huge_string(self):        
         self.client.get('/api/v1/string/{}'.format(random.choice(stringTestSet)), timeout=50, name='/api/v1/get_string')
 
@@ -195,7 +196,6 @@ class testOnJSONGet(TaskSet):
     @task(2)
     def get_huge_json(self):
         self.client.get('/api/v1/doc/{}'.format(random.choice(hugeObjTestSet)), timeout=50, name='/api/v1/get_json')
-        # self.client.cookies.clear()
 
 class testOnChangeJSON(TaskSet):
     @tag('updateField_json')
@@ -452,12 +452,96 @@ class testOnPutRandom(TaskSet):
             name='/api/v1/numMultiBy')
         # self.client.cookies.clear()
 
-class simpleTest(TaskSet):
-    @tag('simpleTest')
-    @task(2)
-    def simpleTest(self):
-        self.client.get('/api/v1/hash/get',
+
+class hashvsjsonPut(TaskSet):
+    @tag('putHash')
+    @task(1)
+    def putHash(self):
+        json_doc = {
+            'name': fake.name(),
+            'age': fake.random_int(min=0, max=100),
+            'location': str(fake.latitude()),
+            'address': fake.street_address()
+        }
+        json_doc = json.dumps(json_doc)
+
+        self.client.post('/api/v1/hash',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/putHash')
+
+    @tag('putJSON')
+    @task(1)
+    def putJSON(self):
+        json_doc = {
+            'name': fake.name(),
+            'age': fake.random_int(min=0, max=100),
+            'location': str(fake.latitude()),
+            'address': fake.street_address()
+        }
+        json_doc = json.dumps(json_doc)
+
+        self.client.post('/api/v1/redisjson',
+            data=json_doc,
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/putJSON')
+
+
+class hashvsjsonGet(TaskSet):
+    @tag('getHash')
+    @task(1)
+    def getHash(self):
+        self.client.get('/api/v1/hash/{}'.format(random.choice(hashTestSet), timeout=50, name='/api/v1/get_hash'),
             name='/api/v1/get')
+
+    @tag('getJSON')
+    @task(1)
+    def getJson(self):
+        self.client.get('/api/v1/doc/{}'.format(random.choice(hugeObjTestSet)), timeout=50, name='/api/v1/get_json')
+
+    @tag('getHashField')
+    @task(1)
+    def get_hash_by_key_and_field(self):
+        self.client.get('/api/v1/hash/{}/{}'.format(random.choice(hashTestSet), random.choice(fields)), timeout=50, name='/api/v1/getFieldValueHash')
+        # self.client.cookies.clear()
+
+    @tag('getJSONField')
+    @task(1)
+    def get_json_by_key_and_field(self):
+        self.client.get('/api/v1/subdoc/{}/{}'.format(random.choice(hugeObjTestSet), random.choice(fields)), timeout=50, name='/api/v1/getFieldValueJSON')
+        # self.client.cookies.clear()
+
+class hashvsjsonUpdate(TaskSet):
+    @tag('updateHash')
+    @task(1)
+    def updateHash(self):
+        update = {
+            'key': random.choice(hashTestSet),
+            'field': 'address',
+            'str': fake.street_address()
+        }
+        self.client.put('/api/v1/hash/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/updateField_hash')
+
+
+    @tag('updateJSON')
+    @task(1)
+    def updateJson(self):
+        update = {
+            'key': random.choice(hugeObjTestSet),
+            'field': 'address',
+            'str': fake.street_address()
+        }
+        self.client.put('/api/v1/redisjson/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/updateField_redisjson')
 
 
 """ Generate the load """
@@ -465,7 +549,7 @@ class simpleTest(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [testOnJSONSet,testOnChangeJSON]
+    tasks = [hashvsjsonGet, hashvsjsonUpdate]
     # min_wait = 5000
     # max_wait = 20000
 
