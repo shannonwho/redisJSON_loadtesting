@@ -453,10 +453,10 @@ class testOnPutRandom(TaskSet):
         # self.client.cookies.clear()
 
 
-class hashvsjsonPut(TaskSet):
-    @tag('putHash')
+class hashvsjsonPost(TaskSet):
+    @tag('hashvsjsonPost')
     @task(1)
-    def putHash(self):
+    def postHash(self):
         json_doc = {
             'name': fake.name(),
             'age': fake.random_int(min=0, max=100),
@@ -469,11 +469,11 @@ class hashvsjsonPut(TaskSet):
             data=json_doc,
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/putHash')
+            name='/api/v1/postHash')
 
-    @tag('putJSON')
+    @tag('postJSON')
     @task(1)
-    def putJSON(self):
+    def postJSON(self):
         json_doc = {
             'name': fake.name(),
             'age': fake.random_int(min=0, max=100),
@@ -486,7 +486,7 @@ class hashvsjsonPut(TaskSet):
             data=json_doc,
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/putJSON')
+            name='/api/v1/postJSON')
 
 
 class hashvsjsonGet(TaskSet):
