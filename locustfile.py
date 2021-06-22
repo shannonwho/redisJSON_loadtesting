@@ -17,7 +17,7 @@ import random
 import string
 import requests
 from rejson import Client, Path
-from demo.utils.sampleJSON import smallObj,bigObj,hugeObj,hugeObjPlus
+from demo.utils.sampleJSON import hugeObj,hugeObjPlus,transction
 from faker import Faker
 from faker.providers import company
 from flask import jsonify
@@ -168,7 +168,7 @@ class testOnJSONSet(TaskSet):
     @tag('add_string')
     # @task(3)
     def add_static_huge_string(self):
-        json_doc = json.dumps(hugeObjPlus)
+        json_doc = json.dumps(transction)
         self.client.post('/api/v1/string',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
@@ -178,7 +178,7 @@ class testOnJSONSet(TaskSet):
     @tag('add_json')
     @task(3)
     def add_huge_json(self):
-        json_doc = json.dumps(hugeObjPlus)
+        json_doc = json.dumps(transction)
         self.client.post('/api/v1/redisjson',
             data=json_doc,
             headers={'Content-Type': 'application/json'},
@@ -549,7 +549,7 @@ class hashvsjsonUpdate(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [hashvsjsonGet, hashvsjsonUpdate]
+    tasks = [testOnJSONSet]
     # min_wait = 5000
     # max_wait = 20000
 
