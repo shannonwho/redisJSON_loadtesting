@@ -22,10 +22,7 @@ from faker import Faker
 from faker.providers import company
 from flask import jsonify
 from flask import request,Response
-from datetime import time
-from datetime import datetime
-from datetime import timedelta
-from datetime import date
+import datetime;
 import enum
 import uuid
 
@@ -328,45 +325,6 @@ class testOnRandomJson(TaskSet):
             name='/api/v1/add_random_small_json')
         # self.client.cookies.clear()
     
-    @tag('add_random_big_json')
-    @task(3)
-    def add_random_big_json(self):
-        nested_json = {
-            'id': "advancedUser:" + str(uuid.uuid4()),
-            'name': fake.name(),
-            'activeStatus': False,
-            'age': str(fake.random_int(min=0, max=100)),
-            'contract':
-                {
-                    'name': fake.company(),
-                    'occupation': 'Solution Architect',
-                    'zipCode': "92603"
-                },
-            'location':[
-                {
-                'latitude': fake.latitude(),
-                'longitude':fake.longitude()
-                },
-                {
-                'latitude': fake.latitude(),
-                'longitude':fake.longitude()
-                },
-                {
-                'latitude': fake.latitude(),
-                'longitude':fake.longitude()
-                }],
-            'address': [
-                fake.street_address(), 
-                fake.street_address(), 
-                fake.street_address()]
-            }
-        self.client.post('/api/v1/redisjson',
-            data=json.dumps(nested_json,use_decimal=True),
-            headers={'Content-Type': 'application/json'},
-            timeout=50,
-            name='/api/v1/add_random_big_json')
-        # self.client.cookies.clear()
-
     @tag('add_static_big_json')
     @task(3)
     def add_static_big_json(self):
@@ -452,7 +410,6 @@ class testOnPutRandom(TaskSet):
             name='/api/v1/numMultiBy')
         # self.client.cookies.clear()
 
-
 class hashvsjsonPost(TaskSet):
     @tag('hashvsjsonPost')
     @task(1)
@@ -487,7 +444,6 @@ class hashvsjsonPost(TaskSet):
             headers={'Content-Type': 'application/json'},
             timeout=50,
             name='/api/v1/postJSON')
-
 
 class hashvsjsonGet(TaskSet):
     @tag('getHash')
@@ -543,13 +499,89 @@ class hashvsjsonUpdate(TaskSet):
             timeout=50,
             name='/api/v1/updateField_redisjson')
 
+class nestedJSON(TaskSet):
+    @tag('jsonPOST')
+    @task(1)
+    def postJSONNested(self):
+        ct = datetime.datetime.now()
+        nested_json = {
+            'id': "user:" + str(uuid.uuid4()),
+            'org_id': "redis:" + str(uuid.uuid4()),
+            'activeStatus': fake.boolean(chance_of_getting_true=25),
+            'age': fake.random_int(min=0, max=100),
+            'data':{
+                'id': fake.company(),
+                'first_name': fake.first_name(),
+                'last_name': fake.last_name(),
+                'external_json': 
+                { 
+                    "id": "external:"+str(uuid.uuid4()),
+                    "type": "PushEvent",
+                    "payload": {
+                        "push_id": "payload" + str(uuid.uuid4()),
+                        "size": fake.random_int(min=0, max=50),
+                        "distinct_size": fake.random_int(min=0, max=10),
+                        "ref": "refs/heads/master"
+                     },
+                    "public": fake.boolean(chance_of_getting_true=85),
+                    "created_at": ct.timestamp(),
+                }, 
+                'foreign_key': str(fake.random_int(min=0, max=1000))
+            },
+            'metadata': {
+                'agent':{
+                    "name": "agent:" + str(uuid.uuid4()),
+                    "addr": fake.ipv4(),
+                    "email": fake.safe_email(),
+                    "port": fake.port_number(),
+                    "tags": {
+                        "dc": fake.random_int(min=0, max=10),
+                        "role": str(fake.job())
+                    },
+                    "status": fake.boolean(chance_of_getting_true=25),
+                },
+                'provenance':
+                {
+                    "resourceType" : "StructureDefinition",
+                    "id" : "provenance"+ str(uuid.uuid4()),
+                    "lastUpdated" : ct.timestamp(),
+                    "extension" : [{
+                        "url" : fake.uri(),
+                        "valueCode" : fake.random_int(min=0, max=10)
+                    },
+                    {
+                        "url" : fake.uri(),
+                        "valueCode" : fake.random_int(min=0, max=10)
+                    },
+                    {
+                        "url" : fake.uri(),
+                        "valueInteger" : fake.random_int(min=0, max=10)
+                    },
+                    {
+                        "url" : fake.uri(),
+                        "valueCode" : fake.random_int(min=0, max=10)
+                    }],
+                    "countryCode" : fake.country_code(),
+                }
+            }
+        }
+    
+        self.client.post('/api/v1/redisjson',
+            data=json.dumps(nested_json,use_decimal=True, indent=4, sort_keys=True, default=str),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/add_random_big_json')
+        # self.client.cookies.clear()
+
+
+
 
 """ Generate the load """
 
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [hashvsjsonGet, hashvsjsonUpdate]
+    tasks = [nestedJSON]
     # min_wait = 5000
     # max_wait = 20000
 
