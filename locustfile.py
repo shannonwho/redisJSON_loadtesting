@@ -154,6 +154,7 @@ def get_id(pattern):
 fields = ['age','name','address','location']
 BasicUserTestSet = get_id('basicUser')
 AdvancedUserTestSet = get_id('advancedUser')
+nestedUserTestSet = get_id('user')
 hugeObjTestSet = get_id('redisJSON')
 hugeObjFields = ['damage_relations', 'move_damage_class', 'pokemon']
 stringTestSet = get_id('stringJSON')
@@ -183,6 +184,8 @@ class testOnJSONSet(TaskSet):
             name='/api/v1/add_json')
 
 
+
+
 class testOnJSONGet(TaskSet):
     @tag('get_string')
     # @task(2)
@@ -193,6 +196,14 @@ class testOnJSONGet(TaskSet):
     @task(2)
     def get_huge_json(self):
         self.client.get('/api/v1/doc/{}'.format(random.choice(hugeObjTestSet)), timeout=50, name='/api/v1/get_json')
+
+
+# class testOnJSONDelete(TaskSet):
+#     @tag('delete_whole_json')
+#     @task(3)
+#     def get_huge_json(self):
+#         self.client.get('/api/v1/redisjson/delete/{}'.format(random.choice(nestedUserTestSet)), timeout=50, name='/api/v1/get_json')
+
 
 class testOnChangeJSON(TaskSet):
     @tag('updateField_json')
@@ -265,6 +276,21 @@ class testOnChangeJSON(TaskSet):
             headers={'Content-Type': 'application/json'},
             timeout=50,
             name='/api/v1/numbIncryBy')
+
+class testOnDeleteJSON(TaskSet):
+    @tag('deleteEntireJSON')
+    @task(2)
+    def delete_whole_doc(self):
+        update = {
+            'key': random.choice(hugeObjTestSet),
+            'field': 'generation',
+            'str': 'generation-X'
+        }
+        self.client.put('/api/v1/redisjson/update',
+            data=json.dumps(update),
+            headers={'Content-Type': 'application/json'},
+            timeout=50,
+            name='/api/v1/updateField_json')
 
 class moreJSONTest(TaskSet):
     @tag('get_json_by_key_and_field')
@@ -574,6 +600,10 @@ class nestedJSON(TaskSet):
         # self.client.cookies.clear()
 
 
+    @tag('jsonGET')
+    @task(2)
+    def get_huge_json(self):
+        self.client.get('/api/v1/doc/{}'.format(random.choice(nestedUserTestSet)), timeout=50, name='/api/v1/get_json')
 
 
 """ Generate the load """

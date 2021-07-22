@@ -58,11 +58,10 @@ API using RedisJSON
 # get a list of keys that's store with RedisJSON with the key pattern
 @app.route('/api/v1/keys', methods=['GET'])
 def api_get_keys():
-    # app.logger.info(
-    #     'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     limit = request.args.get('limit') if request.args.get('limit') else 10
     pattern = request.args.get('pattern') if request.args.get('pattern') else 'basicUser'
-
+    app.logger.info(
+        'limit: %s  pattern: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
     #show all the json item 
     keys = services.scan_keys(pattern,cnt=limit)
     full_json = []
@@ -186,6 +185,21 @@ def api_update_field():
                         status=400)
 
 
+"""
+API using RedisJSON
+- DELETE
+"""
+#Delete a whole JSON (whole doc or by path) 
+@app.route('/api/v1/redisjson/delete/<id>', methods=['DELETE'])
+def api_delete_field(id):
+    json_doc = services.deleteAJson(id)
+    try:
+        return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
+                            mimetype='application/json', status=200)
+    except Exception:
+        app.logger.warn('request failed:', exc_info=True)
+        return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
+                        status=400)
 
 #Append a string value to a field
 @app.route('/api/v1/redisjson/append', methods=['PUT'])

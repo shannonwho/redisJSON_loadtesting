@@ -22,7 +22,7 @@ def scan_keys(pattern,cnt):
     result = []
     print("DEBUG pattern {}".format(pattern))
     try:
-        cur, keys  = rc.connection.scan(cursor=0,match=pattern+'*',count=10)
+        cur, keys  = rc.connection.scan(cursor=0,match=pattern+'*',count=cnt)
         result.extend(keys)
         # print("DEBUG scan_keys cur {}, keys {}; result {}".format(cur,keys, json.dumps(result)))
         return result
@@ -101,6 +101,22 @@ def updateField(key, field, str):
         return {'error': str(e)}
 
 
+#Delete a whole JSON document: whole doc or by path
+def deleteAJson(key):
+    try: 
+        rc.connection.jsondel(name=key)
+        return key
+    except Exception as e:
+        return {'error': str(e)}
+
+#Delete a whole JSON document: whole doc or by path
+def deleteAPathInJson (key,field):
+    try: 
+        rc.connection.jsondel(name=key, path='.'+field)
+        return key
+    except Exception as e:
+        return {'error': str(e)}
+
 
 #Append the json-string value(s) the string at path .
 def appendStringToField(key, field, str):
@@ -142,7 +158,7 @@ def numMultiBy(key, field, multiby):
         return {'error-multiBy':str(e)}
 
 
-# Add JSON through HASH:
+### Add JSON through HASH: ###
 def addjson_hash(**kwargs):
     #create a python obj(dict) first
     id = str(uuid.uuid4())
@@ -177,3 +193,4 @@ def updateField_hash(key, field, str):
         return rc.connection.hgetall(key)
     except Exception as e:
         return {'error': str(e)}
+
