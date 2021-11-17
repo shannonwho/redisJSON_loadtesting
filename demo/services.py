@@ -37,7 +37,6 @@ def scan_fields(key, p):
     except Exception as e:
         return {'error':str(e)}
 
-
 def add_json(**kwargs):
     #restrict to the selected fields 
     id = str(uuid.uuid4())

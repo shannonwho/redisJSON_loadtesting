@@ -2,7 +2,7 @@ Flask
 flask_bootstrap
 markdown
 flask_restful
-redis
+redis==4.0.0
 rejson
 faker
 requests

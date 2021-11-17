@@ -600,10 +600,10 @@ class nestedJSON(TaskSet):
         # self.client.cookies.clear()
 
 
-    @tag('jsonGET')
-    @task(2)
-    def get_huge_json(self):
-        self.client.get('/api/v1/doc/{}'.format(random.choice(nestedUserTestSet)), timeout=50, name='/api/v1/get_json')
+    # @tag('jsonGET')
+    # @task(2)
+    # def get_huge_json(self):
+    #     self.client.get('/api/v1/doc/{}'.format(random.choice(nestedUserTestSet)), timeout=50, name='/api/v1/get_json')
 
 
 """ Generate the load """

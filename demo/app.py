@@ -11,6 +11,7 @@ app = Flask(__name__)
 app.config['ENV'] = config.ENV
 app.config['REDIS_HOST'] = config.REDIS_HOST
 app.config['REDIS_PORT'] = config.REDIS_PORT
+app.config['REDIS_PASSWORD'] = config.REDIS_PASSWORD
 app.app_context().push()
 
 
