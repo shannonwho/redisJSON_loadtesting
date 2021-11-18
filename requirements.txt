@@ -3,7 +3,6 @@ flask_bootstrap
 markdown
 flask_restful
 redis==4.0.0
-rejson
 faker
 requests
 gunicorn

@@ -191,9 +191,18 @@ API using RedisJSON
 - DELETE
 """
 #Delete a whole JSON (whole doc or by path) 
-@app.route('/api/v1/redisjson/delete/<id>', methods=['DELETE'])
-def api_delete_field(id):
-    json_doc = services.deleteAJson(id)
+@app.route('/api/v1/redisjson/delete', methods=['DELETE'])
+def api_delete_field():
+    # field = request.args.get('field') if request.args.get('field') else ''
+    data = request.get_json(force=True)
+    app.logger.info(
+        'method: %s  path: %s  query_string: %s' % (request.method, request.path, request.query_string.decode('UTF-8')))
+
+    if data:
+        key = data.get('key', None)
+        field = data.get('field', None)
+    json_doc = services.deleteAJson(key)
+
     try:
         return Response(json.dumps({'status':'ok', 'json': json_doc}, indent=4, default=str),
                             mimetype='application/json', status=200)
@@ -201,6 +210,8 @@ def api_delete_field(id):
         app.logger.warn('request failed:', exc_info=True)
         return Response(json.dumps({'error': 'Attribute Error'}, indent=4, default=str), mimetype='application/json',
                         status=400)
+
+
 
 #Append a string value to a field
 @app.route('/api/v1/redisjson/append', methods=['PUT'])

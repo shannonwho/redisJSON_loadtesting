@@ -20,7 +20,7 @@ examples_reference = {
 def scan_keys(pattern,cnt):
     "Returns a list of all the keys matching a given pattern"
     result = []
-    print("DEBUG pattern {}".format(pattern))
+    # print("DEBUG pattern {}".format(pattern))
     try:
         cur, keys  = rc.connection.scan(cursor=0,match=pattern+'*',count=cnt)
         result.extend(keys)
@@ -33,7 +33,7 @@ def scan_keys(pattern,cnt):
 def scan_fields(key, p):
     '''Returns the key names in the dictionary JSON value under path at key name'''
     try:
-        return rc.connection.jsonobjkeys(key, path=p)
+        return rc.connection.json().objkeys(key, path=p)
     except Exception as e:
         return {'error':str(e)}
 
@@ -46,7 +46,7 @@ def add_json(**kwargs):
         key = kwargs['id']
     # print("DEBUG - ADD-JSON - key {} - json {}".format(key, json.dumps(kwargs)))
     try:
-        rc.connection.jsonset(key, rc.Path.rootPath(), kwargs)
+        rc.connection.json().set(key, rc.Path.rootPath(), kwargs)
         return json.dumps(kwargs)
     except Exception as e:
         return {'error':str(e)}
@@ -70,14 +70,14 @@ def get_string(key):
 #Get a JSON value based on a key 
 def getJsonByKey(key):
     try:
-        return rc.connection.jsonget(key)
+        return rc.connection.json().get(key)
     except Exception as e:
         return {'error': str(e)}
 
 
 def getArrayOfJsonSubByKey(key, field):
     try:
-        return rc.connection.jsonmget(id, rc.Path('.'+field))
+        return rc.connection.json().get(id, rc.Path('.'+field))
     except Exception as e:
         return {'error': str(e)}
 
@@ -85,7 +85,7 @@ def getArrayOfJsonSubByKey(key, field):
 def getSubdoc(id, field):
     try:
         ##rj.jsonget('obj', Path('.truth.coord'))
-        return rc.connection.jsonget(id, rc.Path('.'+field))
+        return rc.connection.json().get(id, rc.Path('.'+field))
     except Exception as e:
         return {'error': str(e)}
 
@@ -93,9 +93,9 @@ def getSubdoc(id, field):
 #Update a field on JSON at path. 
 def updateField(key, field, str):
     try:
-        rc.connection.jsonset(name=key, path='.'+field, obj=str, xx=True)
-        return key
-        # return rc.connection.jsonget(key)
+        rc.connection.json().set(name=key, path='.'+field, obj=str, xx=True)
+        # return key
+        return rc.connection.json().get(key)
     except Exception as e:
         return {'error': str(e)}
 
@@ -103,16 +103,20 @@ def updateField(key, field, str):
 #Delete a whole JSON document: whole doc or by path
 def deleteAJson(key):
     try: 
-        rc.connection.jsondel(name=key)
-        return key
+        print("DEBUG DELETE keys {}".format(key))
+
+        rc.connection.json().delete(name=key)
+        return rc.connection.json().get(key)
     except Exception as e:
         return {'error': str(e)}
 
 #Delete a whole JSON document: whole doc or by path
 def deleteAPathInJson (key,field):
     try: 
-        rc.connection.jsondel(name=key, path='.'+field)
-        return key
+        print("DEBUG DELETE keys {}; path {}".format(key, field))
+        rc.connection.json().delete(name=key, path='.'+field)
+        
+        return rc.connection.json().get(key)
     except Exception as e:
         return {'error': str(e)}
 
@@ -123,8 +127,8 @@ def appendStringToField(key, field, str):
         #restrict to the selected fields 
         #id, field, value
         # print('appendStringToField: key {}, field {}, str {} '.format(key,field,str))
-        rc.connection.jsonstrappend(name=key, path='.'+ field, string=str)
-        return rc.connection.jsonget(key)
+        rc.connection.json().strappend(key, str, path='.'+ field)
+        return rc.connection.json().get(key)
     except Exception as e:
         return {'error': str(e)}
 
@@ -134,7 +138,7 @@ def appendStringToField(key, field, str):
 def addArrayOfJSON(key, field,**arr):
     try:
         print('appendArrayToField: key {}, field {}, arr {} '.format(key,field,arr))
-        rc.connection.jsonarrappend(key, '.'+field, arr)
+        rc.connection.json().arrappend(key, '.'+field, arr)
     except Exception as e:
         return {'error':str(e)}
 
@@ -142,8 +146,8 @@ def addArrayOfJSON(key, field,**arr):
 #Increase the numeric JSON value under path at key with the provided number
 def numIncrBy(key, field, incrby):
     try:
-        rc.connection.jsonnumincrby(key, path='.'+field, number=incrby)
-        return rc.connection.jsonget(key)
+        rc.connection.json().numincrby(key, path='.'+field, number=incrby)
+        return rc.connection.json().get(key)
     except Exception as e:
         return {'error-numIncrBy': str(e)}
 
@@ -151,8 +155,8 @@ def numIncrBy(key, field, incrby):
 # Multiplies the numeric JSON value udner path at key with the provided number 
 def numMultiBy(key, field, multiby):
     try:
-        rc.connection.jsonnummultby(key, path='.'+field, number=multiby)
-        return rc.connection.jsonget(key)
+        rc.connection.json().nummultby(key, path='.'+field, number=multiby)
+        return rc.connection.json().get(key)
     except Exception as e:
         return {'error-multiBy':str(e)}
 

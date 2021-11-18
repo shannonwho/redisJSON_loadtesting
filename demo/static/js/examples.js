@@ -2,6 +2,7 @@ $(document).ready(function(){
     $('#get-examples').click( ()=>{getExamples()})
     $('#get-example').click( ()=>{getExample()});
     $('#get-example-names').click( ()=>{getExampleNames()});
+    $('#delete-example-names').click( ()=>{deleteExample()});
     $('#post-example').click( ()=> {postExample()});
     $('#update-json').click( ()=> {updateJSON()});
     $('#append-json').click( ()=> {appendJSON()});
@@ -54,6 +55,28 @@ async function getExampleNames() {
     console.error(error);
     }
 }
+
+
+async function deleteExample() {
+    $('#delete-example-key-response-time').html('');
+    $('#delete-example-key-response-body').html('');
+    const id= $('#delete-example-key').val();
+    const field = $('#delete-example-field').val();
+    try {
+        const response = await axios({
+            method: 'delete',
+            url: '/api/v1/redisjson/delete',
+            headers: {'Content-Type': 'application/json' },
+            data: {key:key, field:field}
+        });
+        $('#delete-example-key-response-time').html(response.duration.toString());
+        $('#delete-example-key-response-body').html( JSON.stringify( response.data, null, "\t" ) );
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function postExample() {
     console.log("POST EXAMPLE!")
     $('#add-example-response-time').html('');

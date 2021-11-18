@@ -16,7 +16,6 @@ import os
 import random
 import string
 import requests
-from rejson import Client, Path
 from demo.utils.sampleJSON import hugeObj,hugeObjPlus,transction
 from faker import Faker
 from faker.providers import company
@@ -281,16 +280,15 @@ class testOnDeleteJSON(TaskSet):
     @tag('deleteEntireJSON')
     @task(2)
     def delete_whole_doc(self):
-        update = {
-            'key': random.choice(hugeObjTestSet),
-            'field': 'generation',
-            'str': 'generation-X'
+        delete = {
+            'key': random.choice(nestedUserTestSet),
+            'field': 'age'
         }
-        self.client.put('/api/v1/redisjson/update',
-            data=json.dumps(update),
+        self.client.delete('/api/v1/redisjson/delete',
+            data=json.dumps(delete),
             headers={'Content-Type': 'application/json'},
             timeout=50,
-            name='/api/v1/updateField_json')
+            name='/api/v1/deleteField_json')
 
 class moreJSONTest(TaskSet):
     @tag('get_json_by_key_and_field')
@@ -331,7 +329,7 @@ class testOnRandomGet(TaskSet):
     def get_list_of_fields_by_key(self):
         self.client.get('/api/v1/fields/{}'.format(random.choice(AdvancedUserTestSet)), timeout=50, name='/api/v1/examples/getListOfFieldsByKey')
 
-class testOnRandomJson(TaskSet):
+class testOnRafndomJson(TaskSet):
     @tag('add_random_small_json')
     @task(3)
     def add_random_small_json(self):
@@ -600,10 +598,10 @@ class nestedJSON(TaskSet):
         # self.client.cookies.clear()
 
 
-    # @tag('jsonGET')
-    # @task(2)
-    # def get_huge_json(self):
-    #     self.client.get('/api/v1/doc/{}'.format(random.choice(nestedUserTestSet)), timeout=50, name='/api/v1/get_json')
+    @tag('jsonGET')
+    @task(2)
+    def get_huge_json(self):
+        self.client.get('/api/v1/doc/{}'.format(random.choice(nestedUserTestSet)), timeout=50, name='/api/v1/get_json')
 
 
 """ Generate the load """
@@ -611,6 +609,6 @@ class nestedJSON(TaskSet):
 class GenerateLoad(FastHttpUser):
     # connection_timeout=100
     # network_timeout=50
-    tasks = [nestedJSON]
+    tasks = [testOnDeleteJSON]
 
 

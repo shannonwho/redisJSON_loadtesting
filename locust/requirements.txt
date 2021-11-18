@@ -1,4 +1,3 @@
-rejson
 faker
 requests
 simplejson
